@@ -1,0 +1,535 @@
+fileFormatVersion: 2
+guid: 937c05e5051171c409524edb717b677d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8234675477563818362
+    second: __miner_idle-right_1189px_by_878px_per_frame_0
+  - first:
+      213: 1564291516198961067
+    second: __miner_idle-right_1189px_by_878px_per_frame_1
+  - first:
+      213: -1767792421189077673
+    second: __miner_idle-right_1189px_by_878px_per_frame_2
+  - first:
+      213: 4573090084122087043
+    second: __miner_idle-right_1189px_by_878px_per_frame_3
+  - first:
+      213: -6100221681561844238
+    second: __miner_idle-right_1189px_by_878px_per_frame_4
+  - first:
+      213: -3691044551547609378
+    second: __miner_idle-right_1189px_by_878px_per_frame_5
+  - first:
+      213: 4211781300888176528
+    second: __miner_idle-right_1189px_by_878px_per_frame_6
+  - first:
+      213: -7063971611723065804
+    second: __miner_idle-right_1189px_by_878px_per_frame_7
+  - first:
+      213: 3703706208747147724
+    second: __miner_idle-right_1189px_by_878px_per_frame_8
+  - first:
+      213: 3310301982175703615
+    second: __miner_idle-right_1189px_by_878px_per_frame_9
+  - first:
+      213: 5977331614167064305
+    second: __miner_idle-right_1189px_by_878px_per_frame_10
+  - first:
+      213: 104607004718507956
+    second: __miner_idle-right_1189px_by_878px_per_frame_11
+  - first:
+      213: -5821068876660364753
+    second: __miner_idle-right_1189px_by_878px_per_frame_12
+  - first:
+      213: -7443123690430950102
+    second: __miner_idle-right_1189px_by_878px_per_frame_13
+  - first:
+      213: -3130179017232692695
+    second: __miner_idle-right_1189px_by_878px_per_frame_14
+  - first:
+      213: -1360879636708343549
+    second: __miner_idle-right_1189px_by_878px_per_frame_15
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: __miner_idle-right_0
+      rect:
+        serializedVersion: 2
+        x: 327
+        y: 2722
+        width: 488
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fe99865043b3a204aa32fe219a5b031c
+      internalID: -1300259676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_1
+      rect:
+        serializedVersion: 2
+        x: 1516
+        y: 2722
+        width: 488
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1bcefb72a0a9a42469d516cd439d6c08
+      internalID: 56574157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_2
+      rect:
+        serializedVersion: 2
+        x: 2705
+        y: 2722
+        width: 488
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c689f841a6737440b24662d9250db78
+      internalID: -1233044962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_3
+      rect:
+        serializedVersion: 2
+        x: 3892
+        y: 2722
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cac66193660f8c4438bfb98d01b2e1b4
+      internalID: 384115917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_4
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 1844
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 277b0657cbbb51a4caf28173368ae62e
+      internalID: 1059793993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_5
+      rect:
+        serializedVersion: 2
+        x: 1514
+        y: 1844
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0ffdb75b3bcdf304e9a56b427faca0d7
+      internalID: -1538784238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_6
+      rect:
+        serializedVersion: 2
+        x: 2703
+        y: 1844
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f797d57982beed24cab29e764971f162
+      internalID: 94128771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_7
+      rect:
+        serializedVersion: 2
+        x: 3892
+        y: 1844
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8536e82810248249946e91cc9c24c2f
+      internalID: 690406613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_8
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 966
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 83c9553bbba7fa847889f28d0ccc48e5
+      internalID: 145856960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_9
+      rect:
+        serializedVersion: 2
+        x: 1514
+        y: 966
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 96c497bfbdc76c34788e4db6bff7cbca
+      internalID: -1883203322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_10
+      rect:
+        serializedVersion: 2
+        x: 2703
+        y: 966
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1623509066a9e3840a9dbe156b9e0055
+      internalID: -1274394411
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_11
+      rect:
+        serializedVersion: 2
+        x: 3892
+        y: 966
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0476f21cf7837474da45a18569a9c431
+      internalID: -266889456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_12
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 88
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ca0e887e8aadac644986543b8b22534c
+      internalID: 1955576040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_13
+      rect:
+        serializedVersion: 2
+        x: 1514
+        y: 88
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c93d8bb56c627604fbd827823ab43208
+      internalID: 247164634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_14
+      rect:
+        serializedVersion: 2
+        x: 2703
+        y: 88
+        width: 490
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dcf470080df183e499ef9b4f3329e0a5
+      internalID: 814630399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_idle-right_15
+      rect:
+        serializedVersion: 2
+        x: 3894
+        y: 88
+        width: 488
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81ea7973c16ea04469d6d46e2f998374
+      internalID: 108660392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b7109a8ea45933d428e71f0723e20648
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      __miner_idle-right_0: -1300259676
+      __miner_idle-right_1: 56574157
+      __miner_idle-right_10: -1274394411
+      __miner_idle-right_11: -266889456
+      __miner_idle-right_12: 1955576040
+      __miner_idle-right_13: 247164634
+      __miner_idle-right_14: 814630399
+      __miner_idle-right_15: 108660392
+      __miner_idle-right_2: -1233044962
+      __miner_idle-right_3: 384115917
+      __miner_idle-right_4: 1059793993
+      __miner_idle-right_5: -1538784238
+      __miner_idle-right_6: 94128771
+      __miner_idle-right_7: 690406613
+      __miner_idle-right_8: 145856960
+      __miner_idle-right_9: -1883203322
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
