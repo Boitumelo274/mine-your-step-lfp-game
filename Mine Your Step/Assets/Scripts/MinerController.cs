@@ -20,7 +20,7 @@ public class MinerController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private Vector2 movementInput;
-    private bool isGrounded;
+    private bool IsGrounded;
     private bool facingRight = true;
 
     private void Awake()
@@ -47,12 +47,12 @@ public class MinerController : MonoBehaviour
     {
         movementInput = moveAction.action.ReadValue<Vector2>();
 
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
 
         if (animator != null)
         {
             animator.SetFloat("Speed", Mathf.Abs(movementInput.x));
-            animator.SetBool("IsGrounded", isGrounded);
+            animator.SetBool("IsGrounded", IsGrounded  );
         }
 
         Flip();
@@ -65,12 +65,16 @@ public class MinerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        if (isGrounded)
+        if (IsGrounded)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+            if (animator != null)
+            {
+                animator.SetBool("IsGrounded", false);
+            }
         }
     }
-
     private void Flip()
     {
         if ((facingRight && movementInput.x < 0f) || (!facingRight && movementInput.x > 0f))
