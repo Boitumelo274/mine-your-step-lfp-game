@@ -226,7 +226,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 11.471548
+  orthographic size: 20
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -522,7 +522,7 @@ GameObject:
   - component: {fileID: 794298116}
   - component: {fileID: 794298115}
   - component: {fileID: 794298117}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Platform
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -597,7 +597,7 @@ Transform:
   m_GameObject: {fileID: 794298114}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 893.31, y: 278.46, z: 0}
+  m_LocalPosition: {x: 893.31, y: 283.14, z: 0}
   m_LocalScale: {x: 4.638465, y: 0.94954854, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -660,7 +660,7 @@ GameObject:
   - component: {fileID: 894443993}
   - component: {fileID: 894443992}
   - component: {fileID: 894443994}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Platform (2)
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -735,7 +735,7 @@ Transform:
   m_GameObject: {fileID: 894443991}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 908.55, y: 278.58, z: 0}
+  m_LocalPosition: {x: 927.07, y: 289.35, z: 0}
   m_LocalScale: {x: 4.638465, y: 0.94954854, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -798,7 +798,7 @@ GameObject:
   - component: {fileID: 963614272}
   - component: {fileID: 963614271}
   - component: {fileID: 963614273}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Platform (1)
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -873,7 +873,7 @@ Transform:
   m_GameObject: {fileID: 963614270}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 901.85, y: 280.3, z: 0}
+  m_LocalPosition: {x: 910.4, y: 286.51, z: 0}
   m_LocalScale: {x: 4.638465, y: 0.94954854, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1113,10 +1113,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3aabc71f59b558429aa4af1ae12b42b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinerController
-  moveSpeed: 12
-  jumpForce: 15
-  fallMultiplier: 7
-  lowJumpMultiplier: 0
+  moveSpeed: 22
+  jumpHeight: 12
+  jumpDistanceToPeak: 7.5
+  dropGravityMultiplier: 1
   moveAction: {fileID: -1680190386980627800, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   jumpAction: {fileID: -2099379676528639254, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!50 &1010196763
@@ -1134,8 +1134,8 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1.2
-  m_Material: {fileID: 0}
+  m_GravityScale: 1
+  m_Material: {fileID: 6200000, guid: 7dba71c2a420e9746b28d466009e9329, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1220,7 +1220,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 34
-    OrthographicSize: 11.471548
+    OrthographicSize: 20
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
