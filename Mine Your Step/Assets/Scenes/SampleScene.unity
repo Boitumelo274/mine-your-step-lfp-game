@@ -459,11 +459,11 @@ Transform:
   m_GameObject: {fileID: 684434212}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 909.5516, y: 273.8984, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 169.69974, y: 5.1307135, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 943911648}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &684434215
 BoxCollider2D:
@@ -596,12 +596,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 794298114}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 893.31, y: 283.14, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -16.241577, y: 9.241608, z: 0}
   m_LocalScale: {x: 4.638465, y: 0.94954854, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 943911648}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &794298117
 BoxCollider2D:
@@ -734,12 +734,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 894443991}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 927.07, y: 289.35, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 17.518433, y: 15.451599, z: 0}
   m_LocalScale: {x: 4.638465, y: 0.94954854, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 943911648}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &894443994
 BoxCollider2D:
@@ -787,6 +787,41 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!1 &943911647
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 943911648}
+  m_Layer: 0
+  m_Name: Level Surface
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &943911648
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 943911647}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 909.5516, y: 273.8984, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 794298116}
+  - {fileID: 963614272}
+  - {fileID: 894443993}
+  - {fileID: 684434214}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &963614270
 GameObject:
   m_ObjectHideFlags: 0
@@ -872,12 +907,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963614270}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 910.4, y: 286.51, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.8484497, y: 12.611603, z: 0}
   m_LocalScale: {x: 4.638465, y: 0.94954854, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 943911648}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &963614273
 BoxCollider2D:
@@ -1071,8 +1106,13 @@ MonoBehaviour:
   jumpHeight: 12
   jumpDistanceToPeak: 7.5
   dropGravityMultiplier: 1
+  downForce: 500
+  maxHeadButtHeight: 9
+  headButtSpeedMultiplier: 1.5
+  doubleTapWindow: 0.3
   moveAction: {fileID: -1680190386980627800, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   jumpAction: {fileID: -2099379676528639254, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  slamAction: {fileID: 4021812909496753377, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
 --- !u!50 &1010196763
 Rigidbody2D:
   serializedVersion: 5
@@ -1098,7 +1138,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!60 &1010196764
 PolygonCollider2D:
@@ -1155,18 +1195,18 @@ PolygonCollider2D:
       - {x: 0.95954615, y: -1.0246559}
       - {x: 1.0989112, y: -0.67624325}
       - {x: 1.1221387, y: -0.1884655}
-      - {x: 1.2615038, y: -0.1884655}
-      - {x: 1.4008689, y: 0.020582093}
+      - {x: 1.2303759, y: -0.0872387}
+      - {x: 1.354116, y: 0.10624494}
       - {x: 1.6795989, y: 0.81031746}
-      - {x: 2.3764243, y: 0.83354497}
-      - {x: 2.4693344, y: 0.88}
-      - {x: 2.4693344, y: 1.2051852}
-      - {x: 2.3764243, y: 1.2980952}
-      - {x: 1.772509, y: 1.5303704}
+      - {x: 1.6643271, y: 0.81163335}
+      - {x: 1.6200912, y: 0.82522094}
+      - {x: 1.5926254, y: 0.9312289}
+      - {x: 1.417562, y: 1.14743}
+      - {x: 1.279406, y: 1.4892937}
       - {x: 1.2150488, y: 1.971693}
       - {x: 1.1918212, y: 2.296878}
       - {x: 1.3311863, y: 2.3433332}
-      - {x: 1.4473239, y: 2.5291533}
+      - {x: 1.3290988, y: 2.5291533}
       - {x: 1.1453662, y: 2.8078835}
       - {x: 0.93631864, y: 3.063386}
       - {x: 0.56467843, y: 3.3885713}
@@ -1189,12 +1229,12 @@ PolygonCollider2D:
       - {x: -1.5257975, y: 2.4826982}
       - {x: -1.8277552, y: 1.925238}
       - {x: -1.9671203, y: 1.6697353}
-      - {x: -2.2458503, y: 1.7161903}
-      - {x: -2.408443, y: 1.6232804}
-      - {x: -2.4316704, y: 1.4839153}
-      - {x: -2.4316704, y: 1.2051852}
-      - {x: -2.2728155, y: 1.0135776}
-      - {x: -2.1061482, y: 1.021101}
+      - {x: -2.0224006, y: 1.5069008}
+      - {x: -2.0537677, y: 1.3679093}
+      - {x: -2.059234, y: 1.2391644}
+      - {x: -2.0450127, y: 1.151993}
+      - {x: -2.0316045, y: 1.0703403}
+      - {x: -2.0281453, y: 1.021101}
       - {x: -1.9903477, y: 0.9032275}
       - {x: -1.9263916, y: 0.7892456}
       - {x: -1.456115, y: -0.04910044}
@@ -1214,6 +1254,7 @@ PolygonCollider2D:
       - {x: -0.87542725, y: -1.3730686}
       - {x: -0.6199246, y: -1.6517987}
       - {x: -0.5734696, y: -2.0698938}
+      - {x: -0.7574463, y: -2.8287964}
       - {x: -0.7592897, y: -2.8364017}
       - {x: -0.66637963, y: -2.9525392}
       - {x: -0.5734696, y: -3.347407}
@@ -1337,9 +1378,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 619394802}
-  - {fileID: 794298116}
-  - {fileID: 963614272}
-  - {fileID: 894443993}
   - {fileID: 1010196759}
-  - {fileID: 684434214}
+  - {fileID: 943911648}
   - {fileID: 1199486549}
