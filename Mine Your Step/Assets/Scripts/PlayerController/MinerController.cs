@@ -9,10 +9,8 @@ public class MinerController : MonoBehaviour
 
     [Header("Kinematic Jump Arc")]
     [Tooltip("Exactly how high the jump should go in Unity units.")]
-
     public float jumpHeight = 3.5f;
     [Tooltip("The horizontal distance covered before reaching the peak (defines the angular arc).")]
-
     public float jumpDistanceToPeak = 3f;
     [Tooltip("How much faster the character plummets after reaching the peak (Drop Speed).")]
     public float dropGravityMultiplier = 2.5f;
@@ -24,12 +22,21 @@ public class MinerController : MonoBehaviour
     [Header("Head Butt")]
     [Tooltip("How high (in world units) the headbutt rises before gravity naturally brings it back down.")]
     public float maxHeadButtHeight = 3f;
-
     [Tooltip("Scales how fast the headbutt launches and decelerates.")]
     public float headButtSpeedMultiplier = 1.5f;
-
     [Tooltip("Max time (seconds) between two Space presses, while airborne, for the second press to register as a headbutt instead of a jump attempt.")]
     public float doubleTapWindow = 0.3f;
+
+    [Header("Platform Impact")]
+    [Tooltip("Scales how much a ground-slam impact bends a BendablePlatform.")]
+    [SerializeField] private float slamForceMultiplier = 1f;
+
+    [Header("Slope Grip")]
+    [Tooltip("How strongly the player resists sliding when grounded with no input (higher = snappier correction).")]
+    [SerializeField] private float slideCorrectionStrength = 60f;
+
+    private float lockedXPosition;
+    private bool hasLockedPosition;
 
     [Header("Input References")]
     public InputActionReference moveAction;
@@ -49,7 +56,6 @@ public class MinerController : MonoBehaviour
 
     private float lastJumpPressTime = -10f;
 
-    // These are calculated automatically by the script now
     private float defaultGravity;
     private float jumpVelocity;
 
@@ -63,16 +69,10 @@ public class MinerController : MonoBehaviour
 
     private void CalculateJumpPhysics()
     {
-        // Prevents the math from breaking if moveSpeed is accidentally set to 0
         float safeMoveSpeed = Mathf.Max(moveSpeed, 0.1f);
-
-        // Time it takes to reach the peak based on your speed and desired arc distance
         float timeToApex = jumpDistanceToPeak / safeMoveSpeed;
 
-        // Required gravity to perfectly stop the player at the exact jump height
         defaultGravity = (2f * jumpHeight) / Mathf.Pow(timeToApex, 2);
-
-        // Required upward burst velocity to reach that jump height
         jumpVelocity = (2f * jumpHeight) / timeToApex;
     }
 
@@ -111,14 +111,44 @@ public class MinerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Apply horizontal movement (locked while slamming or headbutting)
+        //if (!isForceDown && !isHeadButting)
+        //{
+        //    rb.linearVelocity = new Vector2(movementInput.x * moveSpeed, rb.linearVelocity.y);
+        //}
+        //else
+        //{
+        //    rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        //}
+
         if (!isForceDown && !isHeadButting)
         {
-            rb.linearVelocity = new Vector2(movementInput.x * moveSpeed, rb.linearVelocity.y);
+            bool hasInput = Mathf.Abs(movementInput.x) > 0.01f;
+
+            if (isGrounded && !hasInput)
+            {
+                // Standing still on ground: lock X and actively cancel any slope-induced drift.
+                if (!hasLockedPosition)
+                {
+                    lockedXPosition = rb.position.x;
+                    hasLockedPosition = true;
+                }
+
+                float drift = rb.position.x - lockedXPosition;
+                float correctionVelocity = -drift * slideCorrectionStrength;
+
+                rb.linearVelocity = new Vector2(correctionVelocity, rb.linearVelocity.y);
+            }
+            else
+            {
+                // Actively moving or airborne — normal control, release the lock.
+                hasLockedPosition = false;
+                rb.linearVelocity = new Vector2(movementInput.x * moveSpeed, rb.linearVelocity.y);
+            }
         }
         else
         {
             rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            hasLockedPosition = false;
         }
 
         // HEAD BUTT LAUNCH
@@ -128,14 +158,11 @@ public class MinerController : MonoBehaviour
             hasHeadButtTriggered = false;
 
             float speedMultiplier = Mathf.Max(0.01f, headButtSpeedMultiplier);
-
-            float effectiveGravity =
-                defaultGravity * speedMultiplier * speedMultiplier;
+            float effectiveGravity = defaultGravity * speedMultiplier * speedMultiplier;
 
             rb.gravityScale = effectiveGravity / Mathf.Abs(Physics2D.gravity.y);
 
-            float requiredVelocity =
-                Mathf.Sqrt(2f * effectiveGravity * Mathf.Max(0.01f, maxHeadButtHeight));
+            float requiredVelocity = Mathf.Sqrt(2f * effectiveGravity * Mathf.Max(0.01f, maxHeadButtHeight));
 
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, requiredVelocity);
         }
@@ -147,15 +174,15 @@ public class MinerController : MonoBehaviour
             isHeadButting = false;
         }
 
-        // Dynamically shift the gravity scale to create the custom drop speed
-        // (only when not mid-slam or mid-headbutt, which control gravity themselves)
+        // GRAVITY
+
         if (!isForceDown && !isHeadButting)
         {
-            if (rb.linearVelocity.y < 0) // Falling downwards
+            if (rb.linearVelocity.y < 0)
             {
                 rb.gravityScale = (defaultGravity * dropGravityMultiplier) / Mathf.Abs(Physics2D.gravity.y);
             }
-            else // Rising upwards or running on the ground
+            else
             {
                 rb.gravityScale = defaultGravity / Mathf.Abs(Physics2D.gravity.y);
             }
@@ -184,25 +211,18 @@ public class MinerController : MonoBehaviour
         float timeSinceLastPress = Time.time - lastJumpPressTime;
         lastJumpPressTime = Time.time;
 
-        // Double-tapped Space while airborne -> headbutt instead of another jump attempt
-        if (!isGrounded &&
-            timeSinceLastPress <= doubleTapWindow &&
-            !hasHeadButtedThisAirtime)
+        if (!isGrounded && timeSinceLastPress <= doubleTapWindow && !hasHeadButtedThisAirtime)
         {
             hasHeadButtTriggered = true;
             hasHeadButtedThisAirtime = true;
             isHeadButting = true;
-
-            // Cancel ground slam
             isForceDown = false;
             return;
         }
 
         if (isGrounded)
         {
-            // Recalculates right before the jump so you can test different values in real-time
             CalculateJumpPhysics();
-
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
             isGrounded = false;
         }
@@ -213,8 +233,6 @@ public class MinerController : MonoBehaviour
         if (!isGrounded)
         {
             isForceDown = true;
-
-            // Cancel head butt if the player starts slamming
             isHeadButting = false;
         }
     }
@@ -234,14 +252,12 @@ public class MinerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            // Look at every point of contact
             for (int i = 0; i < collision.contactCount; i++)
             {
-                // A normal pointing up (y > 0.5) means we touched a floor, not a wall
                 if (collision.GetContact(i).normal.y > 0.5f)
                 {
                     isGrounded = true;
-                    return; // Stop checking, we found the floor
+                    return;
                 }
             }
         }
@@ -249,12 +265,27 @@ public class MinerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Capture BEFORE EvaluateCollision/next FixedUpdate can clear it,
+        // so we know if THIS landing was a ground-slam impact.
+        bool wasSlamming = isForceDown;
+
         EvaluateCollision(collision);
+
+        if (!collision.gameObject.CompareTag("Ground")) return;
+
+        BendablePlatform bendable = collision.collider.GetComponent<BendablePlatform>();
+        if (bendable != null && wasSlamming)
+        {
+            ContactPoint2D contact = collision.GetContact(0);
+            float impactSpeed = Mathf.Abs(collision.relativeVelocity.y);
+            float impactForce = impactSpeed * rb.mass * slamForceMultiplier;
+
+            bendable.ApplyImpact(contact.point, impactForce);
+        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        // Added Stay so the character doesn't randomly unground while running across flat surfaces
         EvaluateCollision(collision);
     }
 
