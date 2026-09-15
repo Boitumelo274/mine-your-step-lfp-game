@@ -1,17 +1,29 @@
-using UnityEngine;
+ï»¿using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
+[ExecuteAlways]
 [RequireComponent(typeof(EdgeCollider2D))]
-[RequireComponent(typeof(LineRenderer))]
 public class BendablePlatform : MonoBehaviour
 {
     [Header("Shape")]
+    [Tooltip("Auto-filled from this object's SpriteRenderer the moment the script is added. You can reassign it afterward to swap textures.")]
+    [SerializeField] private Sprite sourceSprite;
     [SerializeField, Min(3)] private int pointCount = 16;
-    [SerializeField, Min(0.1f)] private float platformLength = 8f;
+    [Tooltip("Used only if there's no sprite assigned.")]
+    [SerializeField] private float fallbackLength = 8f;
+    [SerializeField] private float fallbackThickness = 1f;
+    [SerializeField] private Color fallbackColor = Color.gray;
+
+    [Header("Rendering")]
+    [SerializeField] private string sortingLayerName = "Default";
+    [SerializeField] private int sortingOrder = 0;
 
     [Header("Bend Behavior")]
     [SerializeField] private float forceToDepthScale = 0.02f;
     [SerializeField] private float maxBendDepth = 2.5f;
-    [SerializeField] private float maxUpwardBendDepth = 2.5f; 
+    [SerializeField] private float maxUpwardBendDepth = 2.5f;
     [SerializeField] private float bendSpread = 1.5f;
     [SerializeField, Range(0, 4)] private int smoothingIterations = 2;
 
@@ -20,26 +32,128 @@ public class BendablePlatform : MonoBehaviour
     [SerializeField] private float damping = 6f;
     [SerializeField] private float settleThreshold = 0.0015f;
 
+    private float platformLength;
+    private float thickness;
+    private float uMin, uMax, vMin, vMax;
+
     private Vector2[] localPositions;
     private float[] permanentOffset;
     private float[] elasticOffset;
     private float[] velocity;
 
     private EdgeCollider2D edgeCollider;
-    private LineRenderer lineRenderer;
+    private MeshFilter meshFilter;
+    private MeshRenderer meshRenderer;
+    private Mesh mesh;
+
     private bool isSettled = true;
 
-    private void Awake()
+    private void OnEnable()
     {
         edgeCollider = GetComponent<EdgeCollider2D>();
-        lineRenderer = GetComponent<LineRenderer>();
 
-        BuildBeam();
+        ConvertSpriteRendererIfPresent();
+        EnsureMeshComponents();
+        RebuildAll();
     }
 
     private void OnValidate()
     {
         if (pointCount < 3) pointCount = 3;
+
+#if UNITY_EDITOR
+        // OnValidate can fire before OnEnable has fully set things up (e.g. right after
+        // the script is added in the Inspector), and Unity disallows some operations
+        // (like destroying components) synchronously inside OnValidate. Deferring one
+        // frame avoids both problems while still updating the Scene view immediately.
+        EditorApplication.delayCall += () =>
+        {
+            if (this == null) return; // object may have been deleted in the meantime
+            EnsureMeshComponents();
+            RebuildAll();
+        };
+#else
+        RebuildAll();
+#endif
+    }
+
+    /// <summary>
+    /// If this GameObject already has a SpriteRenderer (the normal case when dragging
+    /// this script onto an existing 2D sprite object), grab its sprite and sorting info,
+    /// then remove it â€” SpriteRenderer and MeshRenderer cannot coexist on one object, and
+    /// only a mesh can actually deform per-vertex.
+    /// </summary>
+    private void ConvertSpriteRendererIfPresent()
+    {
+        SpriteRenderer existing = GetComponent<SpriteRenderer>();
+        if (existing == null) return;
+
+        if (sourceSprite == null) sourceSprite = existing.sprite;
+        sortingLayerName = existing.sortingLayerName;
+        sortingOrder = existing.sortingOrder;
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            DestroyImmediate(existing);
+            Debug.Log($"[BendablePlatform] Replaced the SpriteRenderer on '{name}' with a bendable mesh using the same sprite.", this);
+            return;
+        }
+#endif
+        Destroy(existing);
+    }
+
+    private void EnsureMeshComponents()
+    {
+        meshFilter = GetComponent<MeshFilter>();
+        if (meshFilter == null) meshFilter = gameObject.AddComponent<MeshFilter>();
+
+        meshRenderer = GetComponent<MeshRenderer>();
+        if (meshRenderer == null) meshRenderer = gameObject.AddComponent<MeshRenderer>();
+    }
+
+    private void RebuildAll()
+    {
+        if (edgeCollider == null || meshFilter == null || meshRenderer == null) return;
+
+        ReadSourceVisual();
+        BuildBeam();
+        BuildMeshTopology();
+        UpdateColliderAndVisual();
+    }
+    private void ReadSourceVisual()
+    {
+        Material material;
+
+        if (sourceSprite != null)
+        {
+            platformLength = sourceSprite.bounds.size.x;
+            thickness = sourceSprite.bounds.size.y;
+
+            Rect rect = sourceSprite.rect;
+            Texture2D texture = sourceSprite.texture;
+
+            uMin = rect.x / texture.width;
+            uMax = (rect.x + rect.width) / texture.width;
+            vMin = rect.y / texture.height;
+            vMax = (rect.y + rect.height) / texture.height;
+
+            material = new Material(Shader.Find("Sprites/Default"));
+            material.mainTexture = texture;
+        }
+        else
+        {
+            platformLength = fallbackLength;
+            thickness = fallbackThickness;
+            uMin = uMax = vMin = vMax = 0f;
+
+            material = new Material(Shader.Find("Sprites/Default"));
+            material.color = fallbackColor;
+        }
+
+        meshRenderer.sortingLayerName = sortingLayerName;
+        meshRenderer.sortingOrder = sortingOrder;
+        meshRenderer.sharedMaterial = material;
     }
 
     private void BuildBeam()
@@ -55,9 +169,47 @@ public class BendablePlatform : MonoBehaviour
             float x = Mathf.Lerp(-platformLength / 2f, platformLength / 2f, t);
             localPositions[i] = new Vector2(x, 0f);
         }
+    }
 
-        lineRenderer.positionCount = pointCount;
-        UpdateColliderAndVisual();
+    private void BuildMeshTopology()
+    {
+        if (mesh == null) mesh = new Mesh { name = "BendablePlatformMesh" };
+        else mesh.Clear();
+
+        int vertCount = pointCount * 2; // bottom row + top row
+        Vector3[] vertices = new Vector3[vertCount];
+        Vector2[] uvs = new Vector2[vertCount];
+        int[] triangles = new int[(pointCount - 1) * 6];
+
+        for (int i = 0; i < pointCount; i++)
+        {
+            float u = pointCount > 1 ? Mathf.Lerp(uMin, uMax, i / (float)(pointCount - 1)) : uMin;
+            uvs[i] = new Vector2(u, vMin);                 // bottom row
+            uvs[pointCount + i] = new Vector2(u, vMax);    // top row
+        }
+
+        int tri = 0;
+        for (int i = 0; i < pointCount - 1; i++)
+        {
+            int bottomA = i;
+            int bottomB = i + 1;
+            int topA = pointCount + i;
+            int topB = pointCount + i + 1;
+
+            triangles[tri++] = bottomA;
+            triangles[tri++] = topA;
+            triangles[tri++] = bottomB;
+
+            triangles[tri++] = bottomB;
+            triangles[tri++] = topA;
+            triangles[tri++] = topB;
+        }
+
+        mesh.vertices = vertices; // placeholder, filled in by UpdateColliderAndVisual
+        mesh.uv = uvs;
+        mesh.triangles = triangles;
+
+        meshFilter.sharedMesh = mesh;
     }
 
     private void FixedUpdate()
@@ -89,19 +241,25 @@ public class BendablePlatform : MonoBehaviour
 
         if (!anyMovement)
         {
-            isSettled = true; // shape is now locked — no more recalculation until the next impact
+            isSettled = true; // shape is now locked â€” no more recalculation until the next impact
         }
     }
 
-    // Call this when the player ground-slams onto the platform.
-    // worldContactPoint = where they hit; impactForce = how hard (e.g. mass * fall speed).
-
-    public void ApplyImpact(Vector2 worldContactPoint, float impactForce)
+    /// <summary>
+    /// Call this when the player ground-slams onto the platform (bulgeUpward = false)
+    /// or headbutts it from below (bulgeUpward = true).
+    /// </summary>
+    /// 
+    public void ApplyImpact(Vector2 worldContactPoint, float impactForce, bool bulgeUpward = false)
     {
-        Vector3 localContact = transform.InverseTransformPoint(worldContactPoint);
-        float bendAmount = Mathf.Min(impactForce * forceToDepthScale, maxBendDepth);
+        if (localPositions == null) return; // not initialized yet (called in edit mode before OnEnable ran)
 
-        // Find the nearest beam point to the contact — used as the elastic "kick" origin.
+        Vector3 localContact = transform.InverseTransformPoint(worldContactPoint);
+
+        float direction = bulgeUpward ? -1f : 1f;
+        float maxDepthForDirection = bulgeUpward ? maxUpwardBendDepth : maxBendDepth;
+        float bendAmount = Mathf.Min(impactForce * forceToDepthScale, maxDepthForDirection) * direction;
+
         int nearestIndex = 0;
         float nearestDist = float.MaxValue;
 
@@ -118,17 +276,17 @@ public class BendablePlatform : MonoBehaviour
             if (distFromContact > bendSpread) continue;
 
             float falloff = 1f - (distFromContact / bendSpread);
-            falloff = falloff * falloff; // ease it — smooth taper, not a linear ramp
+            falloff = falloff * falloff;
 
             float addedBend = bendAmount * falloff;
 
-            // Additive plastic deformation, clamped — repeated slams deepen the dent further.
-            permanentOffset[i] = Mathf.Min(permanentOffset[i] + addedBend, maxBendDepth);
+            permanentOffset[i] = bulgeUpward
+                ? Mathf.Max(permanentOffset[i] + addedBend, -maxUpwardBendDepth)
+                : Mathf.Min(permanentOffset[i] + addedBend, maxBendDepth);
         }
 
         SmoothPermanentOffset();
 
-        // Elastic kick for a snappy visual settle, centered on the actual impact point.
         velocity[nearestIndex] -= bendAmount * 4f;
 
         isSettled = false;
@@ -136,8 +294,7 @@ public class BendablePlatform : MonoBehaviour
     }
 
     // Averages each point with its neighbors so the permanent dent has no sharp
-    // creases where the affected radius ends — a smooth curve instead of a V-shape.
-
+    // creases where the affected radius ends â€” a smooth curve instead of a V-shape.
     private void SmoothPermanentOffset()
     {
         for (int pass = 0; pass < smoothingIterations; pass++)
@@ -155,11 +312,11 @@ public class BendablePlatform : MonoBehaviour
         }
     }
 
-
-    // Flattens the platform back to its original shape — useful for repeatable puzzles.
-
+    // Flattens the platform back to its original shape â€” useful for repeatable puzzles.
     public void ResetShape()
     {
+        if (permanentOffset == null) return;
+
         for (int i = 0; i < pointCount; i++)
         {
             permanentOffset[i] = 0f;
@@ -173,17 +330,57 @@ public class BendablePlatform : MonoBehaviour
 
     private void UpdateColliderAndVisual()
     {
+        if (mesh == null || localPositions == null) return;
+
+        float halfThickness = thickness / 2f;
+
+        Vector3[] vertices = mesh.vertices;
+        if (vertices.Length != pointCount * 2) return; // topology not built yet for current pointCount
+
         Vector2[] colliderPoints = new Vector2[pointCount];
 
         for (int i = 0; i < pointCount; i++)
         {
-            float y = -(permanentOffset[i] + elasticOffset[i]);
-            Vector2 point = new Vector2(localPositions[i].x, y);
-            colliderPoints[i] = point;
-            lineRenderer.SetPosition(i, transform.TransformPoint(point));
+            float sag = permanentOffset[i] + elasticOffset[i];
+
+            float bottomY = -halfThickness - sag;
+            float topY = halfThickness - sag;
+
+            vertices[i] = new Vector3(localPositions[i].x, bottomY, 0f);
+            vertices[pointCount + i] = new Vector3(localPositions[i].x, topY, 0f);
+
+            colliderPoints[i] = new Vector2(localPositions[i].x, topY);
         }
+
+        mesh.vertices = vertices;
+        mesh.RecalculateBounds();
 
         edgeCollider.points = colliderPoints;
     }
-}
 
+    [ContextMenu("Preview/Test Bend Down (Slam)")]
+    private void TestBendDown() => PreviewImpact(bulgeUpward: false);
+
+    [ContextMenu("Preview/Test Bend Up (Headbutt)")]
+    private void TestBendUp() => PreviewImpact(bulgeUpward: true);
+
+    [ContextMenu("Preview/Reset Shape")]
+    private void TestReset() => ResetShape();
+
+    private void PreviewImpact(bool bulgeUpward)
+    {
+        ApplyImpact(transform.position, 150f, bulgeUpward);
+
+    
+        if (elasticOffset != null)
+        {
+            for (int i = 0; i < pointCount; i++)
+            {
+                elasticOffset[i] = 0f;
+                velocity[i] = 0f;
+            }
+        }
+        isSettled = true;
+        UpdateColliderAndVisual();
+    }
+}
