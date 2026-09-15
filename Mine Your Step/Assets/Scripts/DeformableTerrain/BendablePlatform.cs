@@ -11,6 +11,7 @@ public class BendablePlatform : MonoBehaviour
     [Header("Bend Behavior")]
     [SerializeField] private float forceToDepthScale = 0.02f;
     [SerializeField] private float maxBendDepth = 2.5f;
+    [SerializeField] private float maxUpwardBendDepth = 2.5f; 
     [SerializeField] private float bendSpread = 1.5f;
     [SerializeField, Range(0, 4)] private int smoothingIterations = 2;
 
@@ -94,7 +95,7 @@ public class BendablePlatform : MonoBehaviour
 
     // Call this when the player ground-slams onto the platform.
     // worldContactPoint = where they hit; impactForce = how hard (e.g. mass * fall speed).
-    
+
     public void ApplyImpact(Vector2 worldContactPoint, float impactForce)
     {
         Vector3 localContact = transform.InverseTransformPoint(worldContactPoint);
@@ -134,10 +135,9 @@ public class BendablePlatform : MonoBehaviour
         UpdateColliderAndVisual();
     }
 
-    
     // Averages each point with its neighbors so the permanent dent has no sharp
     // creases where the affected radius ends — a smooth curve instead of a V-shape.
-    
+
     private void SmoothPermanentOffset()
     {
         for (int pass = 0; pass < smoothingIterations; pass++)
@@ -155,9 +155,9 @@ public class BendablePlatform : MonoBehaviour
         }
     }
 
-  
+
     // Flattens the platform back to its original shape — useful for repeatable puzzles.
-  
+
     public void ResetShape()
     {
         for (int i = 0; i < pointCount; i++)
@@ -186,3 +186,4 @@ public class BendablePlatform : MonoBehaviour
         edgeCollider.points = colliderPoints;
     }
 }
+
