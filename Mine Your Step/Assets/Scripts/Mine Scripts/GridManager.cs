@@ -7,6 +7,7 @@ public class GridManager : MonoBehaviour
     [Header("Grid Configuration")]
     [SerializeField] private int width = 10;
     [SerializeField] private int height = 20;
+    [Range(0f, 1f)][SerializeField] private float mineDensity = 0.2f; // 20% chance of a mine per cell
 
     // Static event triggered by platform impacts
     public static Action<Vector2> OnPlatformStruck;
@@ -20,12 +21,7 @@ public class GridManager : MonoBehaviour
     private void Awake()
     {
         mineMatrix = new bool[width, height];
-
-        // --- TEST HAZARDS ---
-        // Populating adjacent coordinates around (0,0) to trigger color feedback
-        mineMatrix[1, 0] = true; // Hazard 1 -> Triggers Yellow tint
-        mineMatrix[0, 1] = true; // Hazard 2 -> Triggers Orange tint
-        mineMatrix[1, 1] = true; // Hazard 3 -> Triggers Red tint + particles
+        GenerateMines();
     }
 
     private void OnEnable()
@@ -39,19 +35,37 @@ public class GridManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Randomly populates the hidden mine matrix based on mineDensity.
+    /// Keeps the top starting row (y = 0) safe for player spawning.
+    /// </summary>
+    public void GenerateMines()
+    {
+        UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                // Ensure starting row is safe for initial spawn
+                if (y == 0)
+                {
+                    mineMatrix[x, y] = false;
+                    continue;
+                }
+
+                mineMatrix[x, y] = UnityEngine.Random.value < mineDensity;
+            }
+        }
+        Debug.Log($"GridManager: Minefield generated ({width}x{height}) at {mineDensity * 100}% density.");
+    }
+
+    /// <summary>
     /// Registers a TileVisualizer component into the grid lookup dictionary.
     /// </summary>
     public void RegisterTileVisualizer(int x, int y, TileVisualizer tile)
     {
         Vector2Int key = new Vector2Int(x, y);
-        if (!grid.ContainsKey(key))
-        {
-            grid.Add(key, tile);
-        }
-        else
-        {
-            grid[key] = tile;
-        }
+        grid[key] = tile;
     }
 
     /// <summary>
@@ -84,7 +98,7 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        // 3. Process the hazard scan and trigger visual color cues
+        // 3. Process hazard scan and trigger visual color cues & potential collapse
         if (struckTile != null)
         {
             int hazardCount = ScanAdjacentHazards(struckTile.gridX, struckTile.gridY);
@@ -113,12 +127,9 @@ public class GridManager : MonoBehaviour
                 int checkX = gridX + dx;
                 int checkY = gridY + dy;
 
-                if (IsValidIndex(checkX, checkY))
+                if (IsValidIndex(checkX, checkY) && mineMatrix[checkX, checkY])
                 {
-                    if (mineMatrix[checkX, checkY])
-                    {
-                        count++;
-                    }
+                    count++;
                 }
             }
         }
