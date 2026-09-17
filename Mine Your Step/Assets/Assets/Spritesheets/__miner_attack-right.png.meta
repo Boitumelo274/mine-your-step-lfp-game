@@ -1,0 +1,429 @@
+fileFormatVersion: 2
+guid: 00ccfa2cc5fc8d74fa623c46b61db4b5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 794560636051119374
+    second: __miner_attack-right_1189px_by_878px_per_frame_0
+  - first:
+      213: 2388157571356846276
+    second: __miner_attack-right_1189px_by_878px_per_frame_1
+  - first:
+      213: -765908820452476909
+    second: __miner_attack-right_1189px_by_878px_per_frame_2
+  - first:
+      213: 6911835262641533572
+    second: __miner_attack-right_1189px_by_878px_per_frame_3
+  - first:
+      213: 3333835142854730816
+    second: __miner_attack-right_1189px_by_878px_per_frame_4
+  - first:
+      213: 3929504393626679029
+    second: __miner_attack-right_1189px_by_878px_per_frame_5
+  - first:
+      213: 7237657203841423504
+    second: __miner_attack-right_1189px_by_878px_per_frame_6
+  - first:
+      213: 6511585721617047147
+    second: __miner_attack-right_1189px_by_878px_per_frame_7
+  - first:
+      213: -3397619623424452970
+    second: __miner_attack-right_1189px_by_878px_per_frame_8
+  - first:
+      213: 2164679711700193188
+    second: __miner_attack-right_1189px_by_878px_per_frame_9
+  - first:
+      213: -7071493382035557362
+    second: __miner_attack-right_1189px_by_878px_per_frame_10
+  - first:
+      213: -4099132476356096416
+    second: __miner_attack-right_1189px_by_878px_per_frame_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_0
+      rect:
+        serializedVersion: 2
+        x: 457
+        y: 1845
+        width: 370
+        height: 757
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0dd55050b8d60b00800000000000000
+      internalID: 794560636051119374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_1
+      rect:
+        serializedVersion: 2
+        x: 1403
+        y: 1848
+        width: 476
+        height: 642
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c8626c78a0742120800000000000000
+      internalID: 2388157571356846276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_2
+      rect:
+        serializedVersion: 2
+        x: 2586
+        y: 1864
+        width: 481
+        height: 620
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 318779a5cf1fe55f0800000000000000
+      internalID: -765908820452476909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_3
+      rect:
+        serializedVersion: 2
+        x: 3895
+        y: 1862
+        width: 431
+        height: 709
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48274c70d85cbef50800000000000000
+      internalID: 6911835262641533572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_4
+      rect:
+        serializedVersion: 2
+        x: 344
+        y: 983
+        width: 680
+        height: 657
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 044e1952669244e20800000000000000
+      internalID: 3333835142854730816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_5
+      rect:
+        serializedVersion: 2
+        x: 1577
+        y: 982
+        width: 682
+        height: 646
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f674753d67688630800000000000000
+      internalID: 3929504393626679029
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_6
+      rect:
+        serializedVersion: 2
+        x: 2724
+        y: 982
+        width: 739
+        height: 652
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 098d30151e2517460800000000000000
+      internalID: 7237657203841423504
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_7
+      rect:
+        serializedVersion: 2
+        x: 3893
+        y: 982
+        width: 749
+        height: 657
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6e5d75c6bccd5a50800000000000000
+      internalID: 6511585721617047147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_8
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 105
+        width: 716
+        height: 659
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69693ef24fa39d0d0800000000000000
+      internalID: -3397619623424452970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_9
+      rect:
+        serializedVersion: 2
+        x: 1547
+        y: 107
+        width: 673
+        height: 659
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4af82649abc7a0e10800000000000000
+      internalID: 2164679711700193188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_10
+      rect:
+        serializedVersion: 2
+        x: 2761
+        y: 106
+        width: 603
+        height: 661
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e04be344c320ddd90800000000000000
+      internalID: -7071493382035557362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_attack-right_1189px_by_878px_per_frame_11
+      rect:
+        serializedVersion: 2
+        x: 4003
+        y: 87
+        width: 482
+        height: 729
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06e078b1bb4fc17c0800000000000000
+      internalID: -4099132476356096416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      __miner_attack-right_1189px_by_878px_per_frame_0: 794560636051119374
+      __miner_attack-right_1189px_by_878px_per_frame_1: 2388157571356846276
+      __miner_attack-right_1189px_by_878px_per_frame_10: -7071493382035557362
+      __miner_attack-right_1189px_by_878px_per_frame_11: -4099132476356096416
+      __miner_attack-right_1189px_by_878px_per_frame_2: -765908820452476909
+      __miner_attack-right_1189px_by_878px_per_frame_3: 6911835262641533572
+      __miner_attack-right_1189px_by_878px_per_frame_4: 3333835142854730816
+      __miner_attack-right_1189px_by_878px_per_frame_5: 3929504393626679029
+      __miner_attack-right_1189px_by_878px_per_frame_6: 7237657203841423504
+      __miner_attack-right_1189px_by_878px_per_frame_7: 6511585721617047147
+      __miner_attack-right_1189px_by_878px_per_frame_8: -3397619623424452970
+      __miner_attack-right_1189px_by_878px_per_frame_9: 2164679711700193188
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
