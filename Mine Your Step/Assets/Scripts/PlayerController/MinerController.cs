@@ -24,8 +24,6 @@ public class MinerController : MonoBehaviour
     public float maxHeadButtHeight = 3f;
     [Tooltip("Scales how fast the headbutt launches and decelerates.")]
     public float headButtSpeedMultiplier = 1.5f;
-    [Tooltip("Max time (seconds) between two Space presses, while airborne, for the second press to register as a headbutt instead of a jump attempt.")]
-    public float doubleTapWindow = 0.3f;
 
     [Header("Platform Impact")]
     [Tooltip("Scales how much a ground-slam impact bends a BendablePlatform.")]
@@ -46,6 +44,8 @@ public class MinerController : MonoBehaviour
     public InputActionReference moveAction;
     public InputActionReference jumpAction;
     public InputActionReference slamAction;
+    [Tooltip("Bound to a One Modifier composite in the Input Actions asset: Modifier = Shift (left/right), Binding = Space. Fires only when Space is pressed while Shift is already held.")]
+    public InputActionReference headbuttAction;
 
     private Rigidbody2D rb;
     private Animator animator;
@@ -57,8 +57,6 @@ public class MinerController : MonoBehaviour
     private bool isHeadButting;
     private bool hasHeadButtedThisAirtime;
     private bool hasHeadButtTriggered;
-
-    private float lastJumpPressTime = -10f;
 
     private float defaultGravity;
     private float jumpVelocity;
@@ -88,6 +86,9 @@ public class MinerController : MonoBehaviour
 
         slamAction.action.Enable();
         slamAction.action.performed += OnSlam;
+
+        headbuttAction.action.Enable();
+        headbuttAction.action.performed += OnHeadbuttInput;
     }
 
     private void OnDisable()
@@ -98,6 +99,9 @@ public class MinerController : MonoBehaviour
 
         slamAction.action.Disable();
         slamAction.action.performed -= OnSlam;
+
+        headbuttAction.action.Disable();
+        headbuttAction.action.performed -= OnHeadbuttInput;
     }
 
     private void Update()
@@ -203,24 +207,23 @@ public class MinerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        float timeSinceLastPress = Time.time - lastJumpPressTime;
-        lastJumpPressTime = Time.time;
-
-        if (!isGrounded && timeSinceLastPress <= doubleTapWindow && !hasHeadButtedThisAirtime)
-        {
-            hasHeadButtTriggered = true;
-            hasHeadButtedThisAirtime = true;
-            isHeadButting = true;
-            isForceDown = false;
-            return;
-        }
-
+        // Headbutt is now its own action (Shift+Space), so this only ever does a normal jump.
         if (isGrounded)
         {
             CalculateJumpPhysics();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
             isGrounded = false;
         }
+    }
+
+    private void OnHeadbuttInput(InputAction.CallbackContext context)
+    {
+        if (isGrounded || hasHeadButtedThisAirtime) return;
+
+        hasHeadButtTriggered = true;
+        hasHeadButtedThisAirtime = true;
+        isHeadButting = true;
+        isForceDown = false;
     }
 
     private void OnSlam(InputAction.CallbackContext context)
