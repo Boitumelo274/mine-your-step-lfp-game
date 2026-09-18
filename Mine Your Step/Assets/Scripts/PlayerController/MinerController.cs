@@ -30,6 +30,10 @@ public class MinerController : MonoBehaviour
     [Header("Platform Impact")]
     [Tooltip("Scales how much a ground-slam impact bends a BendablePlatform.")]
     [SerializeField] private float slamForceMultiplier = 1f;
+    [Tooltip("Fixed force applied to a BendablePlatform when headbutting it — independent of how fast the miner was moving. Increase for a deeper upward fold.")]
+    [SerializeField] private float headButtImpactForce = 150f;
+    [Tooltip("After a headbutt connects with a platform, zero out the vertical velocity so the miner immediately starts falling instead of drifting upward into the deformed platform.")]
+    [SerializeField] private bool killVerticalVelocityOnHeadButtImpact = true;
 
     [Header("Slope Grip")]
     [Tooltip("How strongly the player resists sliding when grounded with no input (higher = snappier correction).")]
@@ -111,15 +115,6 @@ public class MinerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //if (!isForceDown && !isHeadButting)
-        //{
-        //    rb.linearVelocity = new Vector2(movementInput.x * moveSpeed, rb.linearVelocity.y);
-        //}
-        //else
-        //{
-        //    rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
-        //}
-
         if (!isForceDown && !isHeadButting)
         {
             bool hasInput = Mathf.Abs(movementInput.x) > 0.01f;
@@ -265,22 +260,48 @@ public class MinerController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Capture BEFORE EvaluateCollision/next FixedUpdate can clear it,
-        // so we know if THIS landing was a ground-slam impact.
+        // Capture BEFORE EvaluateCollision/next FixedUpdate can clear these,
+        // so we know exactly what kind of impact THIS collision was.
         bool wasSlamming = isForceDown;
+        bool wasHeadButting = isHeadButting;
 
         EvaluateCollision(collision);
 
         if (!collision.gameObject.CompareTag("Ground")) return;
 
         BendablePlatform bendable = collision.collider.GetComponent<BendablePlatform>();
-        if (bendable != null && wasSlamming)
+        if (bendable == null) return;
+
+        if (wasSlamming)
         {
             ContactPoint2D contact = collision.GetContact(0);
             float impactSpeed = Mathf.Abs(collision.relativeVelocity.y);
             float impactForce = impactSpeed * rb.mass * slamForceMultiplier;
 
+            // Downward slam -> bends the platform DOWN (default, bulgeUpward: false).
             bendable.ApplyImpact(contact.point, impactForce);
+        }
+        else if (wasHeadButting)
+        {
+            ContactPoint2D contact = collision.GetContact(0);
+
+            // Unlike the slam, this is a fixed, hand-tuned force rather than something
+            // derived from impact velocity/mass — so the fold depth stays consistent
+            // and predictable no matter how the headbutt arc was configured.
+            float impactForce = headButtImpactForce;
+
+            // Upward headbutt -> bends the platform UP into a fold (convex up / concave
+            // from below), the opposite direction of a slam.
+            bendable.ApplyImpact(contact.point, impactForce, bulgeUpward: true);
+
+            // The headbutt has resolved on impact — stop the launch early and let gravity
+            // take over, instead of waiting for the natural apex check in FixedUpdate.
+            isHeadButting = false;
+
+            if (killVerticalVelocityOnHeadButtImpact)
+            {
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+            }
         }
     }
 
@@ -297,4 +318,3 @@ public class MinerController : MonoBehaviour
         }
     }
 }
-
