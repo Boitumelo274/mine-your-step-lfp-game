@@ -1,0 +1,444 @@
+fileFormatVersion: 2
+guid: e9940c41f37c6a44d878897cd57ee94b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1786635162462563223
+    second: __miner_jump-right_1189px_by_878px_per_frame_0
+  - first:
+      213: 1277089087234273358
+    second: __miner_jump-right_1189px_by_878px_per_frame_1
+  - first:
+      213: 3847574689314555068
+    second: __miner_jump-right_1189px_by_878px_per_frame_2
+  - first:
+      213: 8915470530324135241
+    second: __miner_jump-right_1189px_by_878px_per_frame_3
+  - first:
+      213: -8213156104311781272
+    second: __miner_jump-right_1189px_by_878px_per_frame_4
+  - first:
+      213: 7317276067025177172
+    second: __miner_jump-right_1189px_by_878px_per_frame_5
+  - first:
+      213: 7104165366769252368
+    second: __miner_jump-right_1189px_by_878px_per_frame_6
+  - first:
+      213: -6611468367985264566
+    second: __miner_jump-right_1189px_by_878px_per_frame_7
+  - first:
+      213: 995241494108698814
+    second: __miner_jump-right_1189px_by_878px_per_frame_8
+  - first:
+      213: -2367152913802400357
+    second: __miner_jump-right_1189px_by_878px_per_frame_9
+  - first:
+      213: 4881389490043889057
+    second: __miner_jump-right_1189px_by_878px_per_frame_10
+  - first:
+      213: 8898897000323306166
+    second: __miner_jump-right_1189px_by_878px_per_frame_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: __miner_jump-right_0
+      rect:
+        serializedVersion: 2
+        x: 290
+        y: 1844
+        width: 488
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d0fc705edce4a764e9085f620559480c
+      internalID: 1724131538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_1
+      rect:
+        serializedVersion: 2
+        x: 1579
+        y: 1835
+        width: 395
+        height: 641
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1242cfc785064164db97132e48147cd0
+      internalID: -2128908072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_2
+      rect:
+        serializedVersion: 2
+        x: 2784
+        y: 1835
+        width: 379
+        height: 599
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7c68c1f5ae453b545ae254746b418f21
+      internalID: -442227186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_3
+      rect:
+        serializedVersion: 2
+        x: 3946
+        y: 1819
+        width: 406
+        height: 694
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7a5be4dadfb14a146a0beae1220e8f51
+      internalID: 1884648682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_4
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 985
+        width: 453
+        height: 676
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 40ed0a8dce1673a4f88d4ec73050ff80
+      internalID: 23641736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_5
+      rect:
+        serializedVersion: 2
+        x: 1456
+        y: 1099
+        width: 574
+        height: 552
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad06749832462ce44812d65c234c0e41
+      internalID: 766535575
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_6
+      rect:
+        serializedVersion: 2
+        x: 2654
+        y: 1106
+        width: 574
+        height: 532
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5342b742f401de54db095e51af1c8433
+      internalID: 88764773
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_7
+      rect:
+        serializedVersion: 2
+        x: 3853
+        y: 1110
+        width: 571
+        height: 514
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bb78eb76599a4aa4dbba7c727dcbe54b
+      internalID: -1941003516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_8
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 195
+        width: 558
+        height: 530
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9ef19d79dbd34f34a8c5842e65e1fe21
+      internalID: -312037364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_9
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 77
+        width: 444
+        height: 604
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3687d69d6edc3684b88fa2667e3abd59
+      internalID: -324004535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_10
+      rect:
+        serializedVersion: 2
+        x: 2775
+        y: 81
+        width: 451
+        height: 637
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ae6441bdaf1671843b7b2a56d93361bf
+      internalID: -1020615918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: __miner_jump-right_11
+      rect:
+        serializedVersion: 2
+        x: 3904
+        y: 81
+        width: 483
+        height: 672
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 16c6f2ee27317a84192b7c364c4be31b
+      internalID: 787789918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: f7bd39a5e1b4a1e49ab949148118cac9
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      __miner_jump-right_0: 1724131538
+      __miner_jump-right_1: -2128908072
+      __miner_jump-right_10: -1020615918
+      __miner_jump-right_11: 787789918
+      __miner_jump-right_2: -442227186
+      __miner_jump-right_3: 1884648682
+      __miner_jump-right_4: 23641736
+      __miner_jump-right_5: 766535575
+      __miner_jump-right_6: 88764773
+      __miner_jump-right_7: -1941003516
+      __miner_jump-right_8: -312037364
+      __miner_jump-right_9: -324004535
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -22,7 +22,9 @@ public class BendablePlatform : MonoBehaviour
 
     [Header("Bend Behavior")]
     [SerializeField] private float forceToDepthScale = 0.02f;
+    [Tooltip("How far the beam can sag DOWNWARD from a slam impact.")]
     [SerializeField] private float maxBendDepth = 2.5f;
+    [Tooltip("How far the beam can fold UPWARD from a headbutt impact.")]
     [SerializeField] private float maxUpwardBendDepth = 2.5f;
     [SerializeField] private float bendSpread = 1.5f;
     [SerializeField, Range(0, 4)] private int smoothingIterations = 2;
@@ -41,7 +43,14 @@ public class BendablePlatform : MonoBehaviour
     private float[] elasticOffset;
     private float[] velocity;
 
+    // The original collider only ever tracked the TOP surface (the walkable side). That
+    // left the underside with zero collision geometry, so a headbutt coming from below had
+    // to clip most of the way through the sprite before it could ever register a hit. This
+    // second collider traces the bottom surface at its real height, so headbutts land where
+    // they visually should.
     private EdgeCollider2D edgeCollider;
+    private EdgeCollider2D underEdgeCollider;
+
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
     private Mesh mesh;
@@ -51,10 +60,27 @@ public class BendablePlatform : MonoBehaviour
     private void OnEnable()
     {
         edgeCollider = GetComponent<EdgeCollider2D>();
+        EnsureUnderCollider();
 
         ConvertSpriteRendererIfPresent();
         EnsureMeshComponents();
         RebuildAll();
+    }
+
+    private void EnsureUnderCollider()
+    {
+        if (underEdgeCollider != null) return;
+
+        // Look for one we already created on a previous enable (e.g. domain reload)
+        // before adding a new one, so we don't accumulate duplicates.
+        EdgeCollider2D[] existing = GetComponents<EdgeCollider2D>();
+        if (existing.Length > 1)
+        {
+            underEdgeCollider = existing[1];
+            return;
+        }
+
+        underEdgeCollider = gameObject.AddComponent<EdgeCollider2D>();
     }
 
     private void OnValidate()
@@ -69,6 +95,7 @@ public class BendablePlatform : MonoBehaviour
         EditorApplication.delayCall += () =>
         {
             if (this == null) return; // object may have been deleted in the meantime
+            EnsureUnderCollider();
             EnsureMeshComponents();
             RebuildAll();
         };
@@ -247,18 +274,22 @@ public class BendablePlatform : MonoBehaviour
 
     /// <summary>
     /// Call this when the player ground-slams onto the platform (bulgeUpward = false)
-    /// or headbutts it from below (bulgeUpward = true).
+    /// or headbutts it from below (bulgeUpward = true). The two paths are deliberately
+    /// mirrored: same falloff, same smoothing, same clamp logic — just flipped in sign
+    /// and pointed at maxBendDepth vs. maxUpwardBendDepth respectively.
     /// </summary>
-    /// 
     public void ApplyImpact(Vector2 worldContactPoint, float impactForce, bool bulgeUpward = false)
     {
         if (localPositions == null) return; // not initialized yet (called in edit mode before OnEnable ran)
 
         Vector3 localContact = transform.InverseTransformPoint(worldContactPoint);
 
-        float direction = bulgeUpward ? -1f : 1f;
         float maxDepthForDirection = bulgeUpward ? maxUpwardBendDepth : maxBendDepth;
-        float bendAmount = Mathf.Min(impactForce * forceToDepthScale, maxDepthForDirection) * direction;
+        float rawBend = Mathf.Min(impactForce * forceToDepthScale, maxDepthForDirection);
+
+        // Slam bends positive (down). Headbutt bends negative (up). Everything from here
+        // down uses this single signed value, so the two impact types stay symmetric.
+        float bendAmount = bulgeUpward ? -rawBend : rawBend;
 
         int nearestIndex = 0;
         float nearestDist = float.MaxValue;
@@ -287,7 +318,12 @@ public class BendablePlatform : MonoBehaviour
 
         SmoothPermanentOffset();
 
-        velocity[nearestIndex] -= bendAmount * 4f;
+        // Kick the impact point in the SAME direction it just bent (positive kick for a
+        // slam's downward bend, negative kick for a headbutt's upward bend) so it overshoots
+        // slightly before the spring settles it back. The previous version subtracted here,
+        // which sent the headbutt's transient wobble in the wrong direction on the very
+        // first frames after impact.
+        velocity[nearestIndex] += bendAmount * 4f;
 
         isSettled = false;
         UpdateColliderAndVisual();
@@ -337,7 +373,8 @@ public class BendablePlatform : MonoBehaviour
         Vector3[] vertices = mesh.vertices;
         if (vertices.Length != pointCount * 2) return; // topology not built yet for current pointCount
 
-        Vector2[] colliderPoints = new Vector2[pointCount];
+        Vector2[] topPoints = new Vector2[pointCount];
+        Vector2[] bottomPoints = new Vector2[pointCount];
 
         for (int i = 0; i < pointCount; i++)
         {
@@ -349,13 +386,19 @@ public class BendablePlatform : MonoBehaviour
             vertices[i] = new Vector3(localPositions[i].x, bottomY, 0f);
             vertices[pointCount + i] = new Vector3(localPositions[i].x, topY, 0f);
 
-            colliderPoints[i] = new Vector2(localPositions[i].x, topY);
+            topPoints[i] = new Vector2(localPositions[i].x, topY);
+            bottomPoints[i] = new Vector2(localPositions[i].x, bottomY);
         }
 
         mesh.vertices = vertices;
         mesh.RecalculateBounds();
 
-        edgeCollider.points = colliderPoints;
+        edgeCollider.points = topPoints;
+
+        if (underEdgeCollider != null)
+        {
+            underEdgeCollider.points = bottomPoints;
+        }
     }
 
     [ContextMenu("Preview/Test Bend Down (Slam)")]
@@ -371,7 +414,7 @@ public class BendablePlatform : MonoBehaviour
     {
         ApplyImpact(transform.position, 150f, bulgeUpward);
 
-    
+
         if (elasticOffset != null)
         {
             for (int i = 0; i < pointCount; i++)
