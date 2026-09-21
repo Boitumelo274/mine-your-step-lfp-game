@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class TileVisualizer : MonoBehaviour
 {
+    [Header("Grid Position")]
     public int gridX;
     public int gridY;
 
@@ -11,9 +12,16 @@ public class TileVisualizer : MonoBehaviour
     [SerializeField] private BoxCollider2D tileCollider;
 
     [Header("Stress Cue Sprites")]
-    [SerializeField] private Sprite cleanCompressionSprite;
-    [SerializeField] private Sprite hairlineCrackSprite;
-    [SerializeField] private Sprite fractureSprite;
+    [SerializeField] private Sprite cleanCompressionSprite;  // 0 Hazards
+    [SerializeField] private Sprite hairlineCrackSprite;      // 1 Hazard
+    [SerializeField] private Sprite spiderCrackSprite;        // 2 Hazards
+    [SerializeField] private Sprite lavaFissureSprite;        // 3+ Hazards
+
+    [Header("Particle Effects")]
+    [SerializeField] private ParticleSystem warningParticles;
+
+    [Header("Deformation Settings")]
+    [SerializeField] private float deformationOffset = -0.15f;
 
     private Vector3 originalPosition;
     private bool isCollapsed = false;
@@ -25,10 +33,15 @@ public class TileVisualizer : MonoBehaviour
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         if (tileCollider == null) tileCollider = GetComponent<BoxCollider2D>();
 
-        // Register self with GridManager on startup
         GridManager gridMgr = FindFirstObjectByType<GridManager>();
         if (gridMgr != null)
         {
+            // Standardize raw world positions relative to the GridManager's transform position
+            Vector3 relativePos = transform.position - gridMgr.transform.position;
+
+            gridX = Mathf.RoundToInt(relativePos.x);
+            gridY = Mathf.RoundToInt(relativePos.y);
+
             gridMgr.RegisterTileVisualizer(gridX, gridY, this);
         }
     }
@@ -37,8 +50,7 @@ public class TileVisualizer : MonoBehaviour
     {
         if (isCollapsed) return;
 
-        // Apply downward deformation displacement
-        transform.position = originalPosition + new Vector3(0f, -0.15f, 0f);
+        transform.position = originalPosition + new Vector3(0f, deformationOffset, 0f);
 
         switch (hazardCount)
         {
@@ -53,12 +65,16 @@ public class TileVisualizer : MonoBehaviour
                 break;
 
             case 2:
-                if (fractureSprite) spriteRenderer.sprite = fractureSprite;
-                spriteRenderer.color = new Color(1f, 0.5f, 0f); // Orange
+                if (spiderCrackSprite) spriteRenderer.sprite = spiderCrackSprite;
+                spriteRenderer.color = new Color(1.0f, 0.5f, 0.0f);
                 break;
 
-            default: // 3+ Hazards (Danger / Collapse Trigger)
+            default:
+                if (lavaFissureSprite) spriteRenderer.sprite = lavaFissureSprite;
                 spriteRenderer.color = Color.red;
+
+                if (warningParticles != null) warningParticles.Play();
+
                 StartCoroutine(CollapseSequence());
                 break;
         }
@@ -68,10 +84,8 @@ public class TileVisualizer : MonoBehaviour
     {
         isCollapsed = true;
 
-        // Brief delay before collapse so player sees the red warning
         yield return new WaitForSeconds(0.25f);
 
-        // Drop platform visually
         float elapsed = 0f;
         Vector3 startPos = transform.position;
         Vector3 dropPos = startPos + new Vector3(0f, -2.0f, 0f);
@@ -83,13 +97,11 @@ public class TileVisualizer : MonoBehaviour
             yield return null;
         }
 
-        // Disable collider so player falls through
         if (tileCollider != null)
         {
             tileCollider.enabled = false;
         }
 
-        // Fade out sprite
         spriteRenderer.color = new Color(1f, 0f, 0f, 0.2f);
     }
 }

@@ -7,12 +7,15 @@ public class GridManager : MonoBehaviour
     [Header("Grid Configuration")]
     [SerializeField] private int width = 10;
     [SerializeField] private int height = 20;
-    [Range(0f, 1f)][SerializeField] private float mineDensity = 0.2f; // 20% chance of a mine per cell
+    [Range(0f, 1f)] [SerializeField] private float mineDensity = 0.2f; // 20% chance of a mine per cell
+
+    [Header("Spawning References (For Dev 3 Level Spawner)")]
+    [SerializeField] private GameObject platformPrefab;
 
     // Static event triggered by platform impacts
     public static Action<Vector2> OnPlatformStruck;
 
-    // Internal lookup dictionary storing registered tile visualizers
+    // Internal lookup dictionary storing registered tile visualizers by Vector2Int key
     private Dictionary<Vector2Int, TileVisualizer> grid = new Dictionary<Vector2Int, TileVisualizer>();
 
     // Internal mine matrix (True = Mine/Hazard present)
@@ -75,25 +78,26 @@ public class GridManager : MonoBehaviour
     {
         TileVisualizer struckTile = null;
 
-        // 1. Direct match: Check if a registered tile exists close to the struck world position
-        foreach (var entry in grid.Values)
+        // 1. Direct coordinate lookup check
+        Vector2Int roundedPos = new Vector2Int(Mathf.RoundToInt(worldPosition.x), Mathf.RoundToInt(worldPosition.y));
+        if (grid.TryGetValue(roundedPos, out TileVisualizer exactMatch))
         {
-            if (entry != null && Vector2.Distance(entry.transform.position, worldPosition) < 1.0f)
-            {
-                struckTile = entry;
-                break;
-            }
+            struckTile = exactMatch;
         }
-
-        // 2. Fallback: Default to the first registered tile for testing if distance check misses
-        if (struckTile == null && grid.Count > 0)
+        else
         {
+            // 2. Proximity fallback: Find the closest registered tile within 1.2 units
+            float closestDistance = float.MaxValue;
             foreach (var entry in grid.Values)
             {
                 if (entry != null)
                 {
-                    struckTile = entry;
-                    break;
+                    float dist = Vector2.Distance(entry.transform.position, worldPosition);
+                    if (dist < 1.2f && dist < closestDistance)
+                    {
+                        closestDistance = dist;
+                        struckTile = entry;
+                    }
                 }
             }
         }
@@ -107,7 +111,7 @@ public class GridManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("GridManager received impact signal, but no matching registered TileVisualizer was found in scene!");
+            Debug.LogWarning("GridManager received impact signal, but no matching registered TileVisualizer was found near world position " + worldPosition);
         }
     }
 
