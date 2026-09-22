@@ -28,6 +28,8 @@ public class BendablePlatform : MonoBehaviour
     [SerializeField] private float maxUpwardBendDepth = 2.5f;
     [SerializeField] private float bendSpread = 1.5f;
     [SerializeField, Range(0, 4)] private int smoothingIterations = 2;
+    [Tooltip("If enabled, the two end points of the beam are anchored at zero offset (like a bridge pinned to two supports) and never deform, no matter how close an impact lands. Disable this to let impacts near the tips bend the edges too.")]
+    [SerializeField] private bool pinEdges = false;
 
     [Header("Settle Physics")]
     [SerializeField] private float springStiffness = 40f;
@@ -245,7 +247,10 @@ public class BendablePlatform : MonoBehaviour
 
         bool anyMovement = false;
 
-        for (int i = 1; i < pointCount - 1; i++)
+        int startIndex = pinEdges ? 1 : 0;
+        int endIndexExclusive = pinEdges ? pointCount - 1 : pointCount;
+
+        for (int i = startIndex; i < endIndexExclusive; i++)
         {
             float displacement = elasticOffset[i];
             float force = -springStiffness * displacement - damping * velocity[i];
@@ -294,7 +299,10 @@ public class BendablePlatform : MonoBehaviour
         int nearestIndex = 0;
         float nearestDist = float.MaxValue;
 
-        for (int i = 1; i < pointCount - 1; i++)
+        int startIndex = pinEdges ? 1 : 0;
+        int endIndexExclusive = pinEdges ? pointCount - 1 : pointCount;
+
+        for (int i = startIndex; i < endIndexExclusive; i++)
         {
             float distFromContact = Mathf.Abs(localPositions[i].x - localContact.x);
 
@@ -336,8 +344,22 @@ public class BendablePlatform : MonoBehaviour
         for (int pass = 0; pass < smoothingIterations; pass++)
         {
             float[] smoothed = new float[pointCount];
-            smoothed[0] = permanentOffset[0];
-            smoothed[pointCount - 1] = permanentOffset[pointCount - 1];
+
+            if (pinEdges)
+            {
+                // Edges stay anchored at whatever they already are (0, if pinned from
+                // the start) — don't let the smoothing pass pull them off that anchor.
+                smoothed[0] = permanentOffset[0];
+                smoothed[pointCount - 1] = permanentOffset[pointCount - 1];
+            }
+            else
+            {
+                // Edges are free to bend, so smooth them too — using the one neighbor
+                // they have instead of two, so the tip still curves rather than staying
+                // artificially sharp.
+                smoothed[0] = (permanentOffset[0] * 2f + permanentOffset[1]) / 3f;
+                smoothed[pointCount - 1] = (permanentOffset[pointCount - 1] * 2f + permanentOffset[pointCount - 2]) / 3f;
+            }
 
             for (int i = 1; i < pointCount - 1; i++)
             {
