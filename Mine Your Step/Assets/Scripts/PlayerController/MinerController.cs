@@ -321,3 +321,16 @@ public class MinerController : MonoBehaviour
         }
     }
 }
+
+
+//public void TriggerDeath()
+//{
+//    if (animator != null)
+//    {
+//        animator.SetTrigger("Die");
+//    }
+
+//    // Optional: Disable movement when dead
+//    this.enabled = false;
+//    rb.linearVelocity = Vector2.zero;
+//}

@@ -12,10 +12,10 @@ public class TileVisualizer : MonoBehaviour
     [SerializeField] private BoxCollider2D tileCollider;
 
     [Header("Stress Cue Sprites")]
-    [SerializeField] private Sprite cleanCompressionSprite;  // 0 Hazards
-    [SerializeField] private Sprite hairlineCrackSprite;      // 1 Hazard
-    [SerializeField] private Sprite spiderCrackSprite;        // 2 Hazards
-    [SerializeField] private Sprite lavaFissureSprite;        // 3+ Hazards
+    [SerializeField] private Sprite cleanCompressionSprite;  // 0 Nearby Mines
+    [SerializeField] private Sprite hairlineCrackSprite;      // 1 Nearby Mine
+    [SerializeField] private Sprite spiderCrackSprite;        // 2+ Nearby Mines
+    [SerializeField] private Sprite lavaFissureSprite;        // DIRECT MINE HIT ONLY
 
     [Header("Particle Effects")]
     [SerializeField] private ParticleSystem warningParticles;
@@ -36,9 +36,7 @@ public class TileVisualizer : MonoBehaviour
         GridManager gridMgr = FindFirstObjectByType<GridManager>();
         if (gridMgr != null)
         {
-            // Standardize raw world positions relative to the GridManager's transform position
             Vector3 relativePos = transform.position - gridMgr.transform.position;
-
             gridX = Mathf.RoundToInt(relativePos.x);
             gridY = Mathf.RoundToInt(relativePos.y);
 
@@ -46,36 +44,46 @@ public class TileVisualizer : MonoBehaviour
         }
     }
 
-    public void DeformAndApplyStressCue(int hazardCount)
+    /// <summary>
+    /// Handles landing feedback:
+    /// - Direct Mine Hit = Lava Fissure + Collapse Sequence
+    /// - Safe Tile = Stress cracks showing proximity to hidden mines in red zones
+    /// </summary>
+    public void DeformAndApplyStressCue(int adjacentMines, bool isDirectMineHit = false)
     {
         if (isCollapsed) return;
 
+        // Visual dip on impact
         transform.position = originalPosition + new Vector3(0f, deformationOffset, 0f);
 
-        switch (hazardCount)
+        // 1. DIRECT MINE HIT: Trigger explosion/lava fissure and drop platform
+        if (isDirectMineHit)
         {
-            case 0:
+            if (lavaFissureSprite) spriteRenderer.sprite = lavaFissureSprite;
+            spriteRenderer.color = Color.red;
+
+            if (warningParticles != null) warningParticles.Play();
+
+            StartCoroutine(CollapseSequence());
+            return;
+        }
+
+        // 2. SAFE ROCK TILE: Show stress cues based on distance to hidden mines
+        switch (adjacentMines)
+        {
+            case 0: // 0 Mines nearby
                 if (cleanCompressionSprite) spriteRenderer.sprite = cleanCompressionSprite;
                 spriteRenderer.color = Color.white;
                 break;
 
-            case 1:
+            case 1: // 1 Mine nearby
                 if (hairlineCrackSprite) spriteRenderer.sprite = hairlineCrackSprite;
                 spriteRenderer.color = Color.yellow;
                 break;
 
-            case 2:
+            default: // 2 or more Mines nearby
                 if (spiderCrackSprite) spriteRenderer.sprite = spiderCrackSprite;
-                spriteRenderer.color = new Color(1.0f, 0.5f, 0.0f);
-                break;
-
-            default:
-                if (lavaFissureSprite) spriteRenderer.sprite = lavaFissureSprite;
-                spriteRenderer.color = Color.red;
-
-                if (warningParticles != null) warningParticles.Play();
-
-                StartCoroutine(CollapseSequence());
+                spriteRenderer.color = new Color(1.0f, 0.5f, 0.0f); // Orange tint
                 break;
         }
     }
