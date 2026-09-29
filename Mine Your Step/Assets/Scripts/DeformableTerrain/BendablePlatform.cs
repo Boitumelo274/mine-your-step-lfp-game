@@ -20,12 +20,19 @@ public class BendablePlatform : MonoBehaviour
     [SerializeField] private string sortingLayerName = "Default";
     [SerializeField] private int sortingOrder = 0;
 
+    [Header("Deformability")]
+    [Tooltip("If disabled, ground-slam impacts (bulgeUpward = false) do nothing to this platform.")]
+    [SerializeField] private bool canDeformDownward = true;
+    [Tooltip("If disabled, headbutt impacts (bulgeUpward = true) do nothing to this platform.")]
+    [SerializeField] private bool canDeformUpward = true;
+
     [Header("Bend Behavior")]
-    [SerializeField] private float forceToDepthScale = 0.02f;
     [Tooltip("How far the beam can sag DOWNWARD from a slam impact.")]
     [SerializeField] private float maxBendDepth = 2.5f;
     [Tooltip("How far the beam can fold UPWARD from a headbutt impact.")]
     [SerializeField] private float maxUpwardBendDepth = 2.5f;
+    [Tooltip("How many full-strength impacts, landing at the same spot, it takes to reach Max Bend Depth (or Max Upward Bend Depth for a headbutt). The depth added per hit is simply maxDepth / this number — impactForce no longer scales it, so the hit count needed is always consistent no matter how hard or soft the collision was.")]
+    [SerializeField, Min(1)] private int hitsToReachMaxDepth = 3;
     [SerializeField] private float bendSpread = 1.5f;
     [SerializeField, Range(0, 4)] private int smoothingIterations = 2;
     [Tooltip("If enabled, the two end points of the beam are anchored at zero offset (like a bridge pinned to two supports) and never deform, no matter how close an impact lands. Disable this to let impacts near the tips bend the edges too.")]
@@ -282,25 +289,37 @@ public class BendablePlatform : MonoBehaviour
     /// or headbutts it from below (bulgeUpward = true). The two paths are deliberately
     /// mirrored: same falloff, same smoothing, same clamp logic — just flipped in sign
     /// and pointed at maxBendDepth vs. maxUpwardBendDepth respectively.
+    ///
+    /// The per-hit depth is fixed at maxDepth / hitsToReachMaxDepth rather than scaled
+    /// from impactForce, so landing "hitsToReachMaxDepth" hits at the same spot always
+    /// reaches the cap — regardless of how hard any individual hit was.
     /// </summary>
     public void ApplyImpact(Vector2 worldContactPoint, float impactForce, bool bulgeUpward = false)
     {
         if (localPositions == null) return; // not initialized yet (called in edit mode before OnEnable ran)
 
+        if (bulgeUpward && !canDeformUpward) return;
+        if (!bulgeUpward && !canDeformDownward) return;
+
         Vector3 localContact = transform.InverseTransformPoint(worldContactPoint);
 
         float maxDepthForDirection = bulgeUpward ? maxUpwardBendDepth : maxBendDepth;
-        float rawBend = Mathf.Min(impactForce * forceToDepthScale, maxDepthForDirection);
+        float perHitDepth = maxDepthForDirection / hitsToReachMaxDepth;
 
         // Slam bends positive (down). Headbutt bends negative (up). Everything from here
         // down uses this single signed value, so the two impact types stay symmetric.
-        float bendAmount = bulgeUpward ? -rawBend : rawBend;
+        float bendAmount = bulgeUpward ? -perHitDepth : perHitDepth;
 
         int nearestIndex = 0;
         float nearestDist = float.MaxValue;
 
         int startIndex = pinEdges ? 1 : 0;
         int endIndexExclusive = pinEdges ? pointCount - 1 : pointCount;
+
+        // Tracks which points this specific impact actually touched, so the smoothing
+        // pass below only re-shapes that local neighborhood — not the whole beam.
+        int minAffected = -1;
+        int maxAffected = -1;
 
         for (int i = startIndex; i < endIndexExclusive; i++)
         {
@@ -322,51 +341,71 @@ public class BendablePlatform : MonoBehaviour
             permanentOffset[i] = bulgeUpward
                 ? Mathf.Max(permanentOffset[i] + addedBend, -maxUpwardBendDepth)
                 : Mathf.Min(permanentOffset[i] + addedBend, maxBendDepth);
+
+            if (minAffected == -1) minAffected = i;
+            maxAffected = i;
         }
 
-        SmoothPermanentOffset();
+        // Only smooth the region this impact actually reached — a fold shaped somewhere
+        // else on the same platform is left completely alone.
+        if (minAffected != -1)
+        {
+            SmoothPermanentOffset(minAffected, maxAffected);
+        }
 
         // Kick the impact point in the SAME direction it just bent (positive kick for a
         // slam's downward bend, negative kick for a headbutt's upward bend) so it overshoots
-        // slightly before the spring settles it back. The previous version subtracted here,
-        // which sent the headbutt's transient wobble in the wrong direction on the very
-        // first frames after impact.
+        // slightly before the spring settles it back.
         velocity[nearestIndex] += bendAmount * 4f;
 
         isSettled = false;
         UpdateColliderAndVisual();
     }
 
-    // Averages each point with its neighbors so the permanent dent has no sharp
-    // creases where the affected radius ends — a smooth curve instead of a V-shape.
-    private void SmoothPermanentOffset()
+    // Averages each point with its neighbors so the permanent dent has no sharp creases
+    // where the affected radius ends — a smooth curve instead of a V-shape. Only touches
+    // [rangeStart, rangeEnd] (the indices the triggering impact actually affected); points
+    // outside that range are read as fixed boundary values but never modified, so shapes
+    // formed elsewhere on the beam by earlier impacts are never disturbed.
+    private void SmoothPermanentOffset(int rangeStart, int rangeEnd)
     {
+        rangeStart = Mathf.Clamp(rangeStart, 0, pointCount - 1);
+        rangeEnd = Mathf.Clamp(rangeEnd, 0, pointCount - 1);
+
+        int length = rangeEnd - rangeStart + 1;
+
         for (int pass = 0; pass < smoothingIterations; pass++)
         {
-            float[] smoothed = new float[pointCount];
+            float[] smoothed = new float[length];
 
-            if (pinEdges)
+            for (int i = rangeStart; i <= rangeEnd; i++)
             {
-                // Edges stay anchored at whatever they already are (0, if pinned from
-                // the start) — don't let the smoothing pass pull them off that anchor.
-                smoothed[0] = permanentOffset[0];
-                smoothed[pointCount - 1] = permanentOffset[pointCount - 1];
-            }
-            else
-            {
-                // Edges are free to bend, so smooth them too — using the one neighbor
-                // they have instead of two, so the tip still curves rather than staying
-                // artificially sharp.
-                smoothed[0] = (permanentOffset[0] * 2f + permanentOffset[1]) / 3f;
-                smoothed[pointCount - 1] = (permanentOffset[pointCount - 1] * 2f + permanentOffset[pointCount - 2]) / 3f;
+                int localIndex = i - rangeStart;
+
+                if (i == 0)
+                {
+                    // Edge stays anchored at whatever it already is if pinned; otherwise
+                    // smooth it against its one available neighbor.
+                    smoothed[localIndex] = pinEdges
+                        ? permanentOffset[0]
+                        : (permanentOffset[0] * 2f + permanentOffset[1]) / 3f;
+                }
+                else if (i == pointCount - 1)
+                {
+                    smoothed[localIndex] = pinEdges
+                        ? permanentOffset[pointCount - 1]
+                        : (permanentOffset[pointCount - 1] * 2f + permanentOffset[pointCount - 2]) / 3f;
+                }
+                else
+                {
+                    smoothed[localIndex] = (permanentOffset[i - 1] + permanentOffset[i] * 2f + permanentOffset[i + 1]) / 4f;
+                }
             }
 
-            for (int i = 1; i < pointCount - 1; i++)
+            for (int i = rangeStart; i <= rangeEnd; i++)
             {
-                smoothed[i] = (permanentOffset[i - 1] + permanentOffset[i] * 2f + permanentOffset[i + 1]) / 4f;
+                permanentOffset[i] = smoothed[i - rangeStart];
             }
-
-            permanentOffset = smoothed;
         }
     }
 
