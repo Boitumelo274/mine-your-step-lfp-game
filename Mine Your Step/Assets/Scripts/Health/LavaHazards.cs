@@ -2,8 +2,8 @@ using UnityEngine;
 
 /// <summary>
 /// Put on the lava object (its Collider2D must have "Is Trigger" ticked).
-/// When the player touches it: explosion effect plays, player loses hearts, and (optionally)
-/// is moved to a respawn point so they don't keep sitting in the lava.
+/// When the player touches it: explosion effect plays, player loses hearts, and if the
+/// player has a PlayerRespawn they are sent back to their last checkpoint.
 /// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class LavaHazard : MonoBehaviour
@@ -12,8 +12,6 @@ public class LavaHazard : MonoBehaviour
     [Tooltip("Optional. Particle/animation prefab spawned at the player when they hit the lava.")]
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] private float explosionLifetime = 2f;
-    [Tooltip("Optional. If set, the player is moved here after being hurt (and hearts remain lost).")]
-    [SerializeField] private Transform respawnPoint;
 
     private void Reset()
     {
@@ -35,12 +33,10 @@ public class LavaHazard : MonoBehaviour
             Destroy(fx, explosionLifetime);
         }
 
-        if (respawnPoint != null && !health.IsDead)
+        if (!health.IsDead)
         {
-            health.transform.position = respawnPoint.position;
-
-            Rigidbody2D rb = health.GetComponentInParent<Rigidbody2D>();
-            if (rb != null) rb.linearVelocity = Vector2.zero;
+            PlayerRespawn respawn = health.GetComponentInParent<PlayerRespawn>();
+            if (respawn != null) respawn.Respawn();
         }
     }
 }
