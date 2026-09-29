@@ -46,7 +46,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (CurrentHealth == 0)
         {
-            Debug.Log("[PlayerHealth] Health reached 0 — death would trigger here.", this);
+            Debug.Log("[PlayerHealth] Health reached 0 : death would trigger here.", this);
             OnDied?.Invoke();
         }
         return true;
