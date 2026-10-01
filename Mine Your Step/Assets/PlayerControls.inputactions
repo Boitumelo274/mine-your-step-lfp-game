@@ -495,7 +495,7 @@
                 {
                     "name": "",
                     "id": "0a861cbe-c6b0-4d00-92ed-2df606c10a92",
-                    "path": "<Keyboard>/leftCtrl",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
@@ -517,18 +517,7 @@
                 {
                     "name": "modifier",
                     "id": "5a19a1ab-1d70-4762-a3f0-3b77befe0303",
-                    "path": "<Keyboard>/leftShift",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "HeadButt",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "modifier",
-                    "id": "303c9777-96bf-49b8-b700-99a64d50cda7",
-                    "path": "<Keyboard>/rightShift",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
