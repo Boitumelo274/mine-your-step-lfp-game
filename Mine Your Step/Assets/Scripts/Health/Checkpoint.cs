@@ -1,21 +1,23 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-/// <summary>
-/// Drop this on any object with a Collider2D (set to Is Trigger) and place as many as you like.
-/// Touching one makes it the player's respawn point. No numbering or lists to maintain.
-/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class Checkpoint : MonoBehaviour
 {
-    [Tooltip("Where the player appears, relative to this object. (0, 0.5) puts them just above it.")]
+    [Header("Checkpoint Setup")]
+    [Tooltip("Where the player appears relative to this flag.")]
     [SerializeField] private Vector2 spawnOffset = new Vector2(0f, 0.5f);
 
-    [Header("Feedback (all optional)")]
+    [Header("Scanner Area Settings")]
+    [Tooltip("How far out this flag scans for platform tiles to reveal cracks/hazards.")]
+    [SerializeField] private float scanRadius = 18.0f;
+    [Tooltip("The layer assigned to your platform/rock tiles.")]
+    [SerializeField] private LayerMask platformLayer;
+
+    [Header("Visual & Event Feedback")]
     [SerializeField] private SpriteRenderer spriteToTint;
     [SerializeField] private Color inactiveColor = Color.gray;
     [SerializeField] private Color activeColor = Color.white;
-    [Tooltip("Runs the first time the player reaches this checkpoint. Hook up a sound or particles here.")]
     [SerializeField] private UnityEvent onFirstActivated;
 
     private bool hasBeenReached;
@@ -35,6 +37,7 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // 1. Boitumelo's Respawn Hook
         PlayerRespawn respawn = other.GetComponentInParent<PlayerRespawn>();
         if (respawn == null) return;
 
@@ -43,8 +46,28 @@ public class Checkpoint : MonoBehaviour
         if (!hasBeenReached)
         {
             hasBeenReached = true;
+            SetActiveVisual(true);
             onFirstActivated?.Invoke();
         }
+
+        // 2. Tiara's Scanner System Execution
+        ScanAreaForHazards();
+    }
+
+    public void ScanAreaForHazards()
+    {
+        Collider2D[] platforms = Physics2D.OverlapCircleAll(transform.position, scanRadius, platformLayer);
+
+        foreach (var col in platforms)
+        {
+            TileVisualizer tile = col.GetComponent<TileVisualizer>();
+            if (tile != null)
+            {
+                tile.ExposeVisualClues();
+            }
+        }
+
+        Debug.Log($"[Scanner Flag] Scanned area! Visual clues revealed on {platforms.Length} tiles.");
     }
 
     public void SetActiveVisual(bool active)
@@ -56,5 +79,8 @@ public class Checkpoint : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(SpawnPosition, 0.25f);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, scanRadius);
     }
 }
