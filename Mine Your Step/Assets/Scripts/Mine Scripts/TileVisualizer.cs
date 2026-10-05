@@ -1,149 +1,103 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TileVisualizer : MonoBehaviour
 {
-    [Header("Tile State")]
+    [Header("Mine State")]
     public bool isMine = false;
+    public bool isDetonated = false;
     public bool isFlagged = false;
-    public bool isDisarmed = false;
+    public bool isDisarmed = false; // NEW
 
-    [Header("Visual Feedback References")]
+    [Header("Disarm Colors")]
+    public Color disarmedColor = Color.green; // Color when disarmed
+
+    [Header("Warning Sprites")]
+    public Sprite defaultRockSprite;
+    public Sprite hairlineCrackSprite; // 1 adjacent mine
+    public Sprite spiderCrackSprite;   // 2+ adjacent mines
+    public Sprite lavaFissureSprite;   // Detonated actual mine
+    public Sprite flagSprite;          // Flagged tile sprite
+
+    [Header("Components")]
     public SpriteRenderer spriteRenderer;
-    public Sprite defaultSprite;
-    public Sprite cleanCompressionSprite;
-    public Sprite hairlineCrackSprite;
-    public Sprite spiderCrackSprite;
-    public Sprite lavaFissureSprite;
-    public Sprite disarmedSprite; // Used for Flag / Disarmed sprite
-    public ParticleSystem warningParticles;
-
-    [Header("Deformation Animation")]
-    public float dipDistance = 0.2f;
-    public float animSpeed = 5.0f;
-
-    private Vector3 originalPosition;
-    private bool isDeforming = false;
 
     private void Awake()
     {
-        originalPosition = transform.position;
         if (spriteRenderer == null)
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
         }
-        if (spriteRenderer != null && defaultSprite == null)
-        {
-            defaultSprite = spriteRenderer.sprite;
-        }
     }
 
-    /// <summary>
-    /// Backward-compatibility method for Checkpoint.cs or existing trigger calls.
-    /// </summary>
-    public void ExposeVisualClues(int nearbyMineCount = 0)
+    // Disarms the mine and tints it green
+    public void DisarmTile()
     {
-        ApplyAreaScanFeedback(nearbyMineCount, false);
-    }
+        if (!isMine || isDetonated || isDisarmed) return;
 
-    /// <summary>
-    /// Toggles flag state on this tile (shows disarmedSprite / flag icon).
-    /// </summary>
-    public void ToggleFlag()
-    {
-        isFlagged = !isFlagged;
+        isDisarmed = true;
 
-        if (isFlagged)
-        {
-            if (disarmedSprite != null && spriteRenderer != null)
-                spriteRenderer.sprite = disarmedSprite;
-            Debug.Log($"[TileVisualizer] '{gameObject.name}' is now FLAGGED.");
-        }
-        else
-        {
-            if (defaultSprite != null && spriteRenderer != null)
-                spriteRenderer.sprite = defaultSprite;
-            Debug.Log($"[TileVisualizer] '{gameObject.name}' flag REMOVED.");
-        }
-    }
-
-    /// <summary>
-    /// Applies visual crack levels or particle warnings based on surrounding threat level.
-    /// </summary>
-    public void ApplyAreaScanFeedback(int nearbyMineCount, bool animateDip = false)
-    {
-        // Preserve flag state if tile is flagged or disarmed
-        if (isFlagged || isDisarmed)
-        {
-            if (disarmedSprite != null && spriteRenderer != null)
-                spriteRenderer.sprite = disarmedSprite;
-            return;
-        }
-
-        // Direct Mine hit/reveal
-        if (isMine)
-        {
-            if (lavaFissureSprite != null && spriteRenderer != null)
-                spriteRenderer.sprite = lavaFissureSprite;
-
-            if (warningParticles != null && !warningParticles.isPlaying)
-                warningParticles.Play();
-
-            if (animateDip && !isDeforming)
-                StartCoroutine(AnimateDeformation());
-
-            return;
-        }
-
-        // Apply crack intensity based on nearby mine density:
-        // 0 mines nearby  -> clean tile
-        // 1 mine nearby   -> hairline crack
-        // 2+ mines nearby -> spider crack
         if (spriteRenderer != null)
         {
-            if (nearbyMineCount >= 2 && spiderCrackSprite != null)
+            spriteRenderer.color = disarmedColor;
+        }
+
+        Debug.Log($"[Disarmer] Mine at {transform.position} disarmed successfully!");
+    }
+
+    public bool Detonate()
+    {
+        if (isDetonated || isDisarmed) return false;
+
+        isDetonated = true;
+        if (spriteRenderer != null && lavaFissureSprite != null)
+        {
+            spriteRenderer.sprite = lavaFissureSprite;
+        }
+        return true;
+    }
+
+    public bool ToggleFlag()
+    {
+        if (isDetonated || isDisarmed) return false;
+
+        isFlagged = !isFlagged;
+
+        if (spriteRenderer != null)
+        {
+            if (isFlagged && flagSprite != null)
             {
-                spriteRenderer.sprite = spiderCrackSprite;
+                spriteRenderer.sprite = flagSprite;
             }
-            else if (nearbyMineCount == 1 && hairlineCrackSprite != null)
+            else if (!isFlagged && defaultRockSprite != null)
             {
-                spriteRenderer.sprite = hairlineCrackSprite;
-            }
-            else if (nearbyMineCount == 0 && cleanCompressionSprite != null)
-            {
-                spriteRenderer.sprite = cleanCompressionSprite;
+                spriteRenderer.sprite = defaultRockSprite;
             }
         }
 
-        // Dip down physically only if directly landed on/clicked
-        if (animateDip && !isDeforming)
+        return isFlagged;
+    }
+
+    public void ResetVisual()
+    {
+        isDisarmed = false;
+
+        if (spriteRenderer != null)
         {
-            StartCoroutine(AnimateDeformation());
+            spriteRenderer.color = Color.white; // Reset tint color back to normal
+
+            if (!isDetonated && defaultRockSprite != null)
+            {
+                spriteRenderer.sprite = defaultRockSprite;
+            }
         }
     }
 
-    private IEnumerator AnimateDeformation()
+    private void OnDrawGizmos()
     {
-        isDeforming = true;
-
-        Vector3 targetPos = originalPosition + Vector3.down * dipDistance;
-
-        // Dip down
-        while (Vector3.Distance(transform.position, targetPos) > 0.01f)
+        if (isMine)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, animSpeed * Time.deltaTime);
-            yield return null;
+            Gizmos.color = isDisarmed ? Color.green : Color.red;
+            Gizmos.DrawWireCube(transform.position, Vector3.one * 1.5f);
         }
-
-        // Return to original position
-        while (Vector3.Distance(transform.position, originalPosition) > 0.01f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, originalPosition, animSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        transform.position = originalPosition;
-        isDeforming = false;
     }
 }

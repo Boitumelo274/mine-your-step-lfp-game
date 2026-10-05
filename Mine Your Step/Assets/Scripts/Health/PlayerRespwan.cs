@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Goes on the player. Remembers where the player started and the last checkpoint touched.
 /// Respawn() plays a cinematic sequence: short pause, fade to black, teleport while the
-/// screen is dark, hold, then fade back in with the player standing at the checkpoint.
+/// screen is dark, resets/reshuffles mines & re-scans hazards, holds, then fades back in.
 /// </summary>
 public class PlayerRespawn : MonoBehaviour
 {
@@ -68,7 +68,7 @@ public class PlayerRespawn : MonoBehaviour
     {
         isRespawning = true;
         ScreenFader fader = ScreenFader.Get();
-        fader.SetColor(fadeColor);
+        if (fader != null) fader.SetColor(fadeColor);
 
         // Freeze the player right away so they can't walk or fall around in the lava.
         SetControl(false);
@@ -79,22 +79,31 @@ public class PlayerRespawn : MonoBehaviour
         }
 
         yield return new WaitForSeconds(delayBeforeFade);
-        if (transitionStyle == TransitionStyle.RadialIris)
-            yield return fader.IrisClose(fadeOutTime, GetIrisCenter());
-        else
-            yield return fader.FadeTo(1f, fadeOutTime);
 
-        // Screen is black: move the player, then wait for the camera to catch up.
+        if (fader != null)
+        {
+            if (transitionStyle == TransitionStyle.RadialIris)
+                yield return fader.IrisClose(fadeOutTime, GetIrisCenter());
+            else
+                yield return fader.FadeTo(1f, fadeOutTime);
+        }
+
+        // --- SCREEN IS BLACK: TELEPORT, RESHUFFLE MINES, RE-SCAN HAZARDS ---
         Teleport();
+
         yield return new WaitForSeconds(blackHoldTime);
 
         // Give control back as the light returns.
         if (rb != null) rb.simulated = true;
         SetControl(true);
-        if (transitionStyle == TransitionStyle.RadialIris)
-            yield return fader.IrisOpen(fadeInTime, GetIrisCenter());
-        else
-            yield return fader.FadeTo(0f, fadeInTime);
+
+        if (fader != null)
+        {
+            if (transitionStyle == TransitionStyle.RadialIris)
+                yield return fader.IrisOpen(fadeInTime, GetIrisCenter());
+            else
+                yield return fader.FadeTo(0f, fadeInTime);
+        }
 
         isRespawning = false;
     }
@@ -121,6 +130,22 @@ public class PlayerRespawn : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
         Physics2D.SyncTransforms();
+
+        // 1. Reshuffle and place 15 fresh hidden mines across the level
+        if (GridManager.Instance != null)
+        {
+            GridManager.Instance.InitializeGridSystem();
+        }
+
+        // 2. Re-trigger hazard scan around the active checkpoint while screen is black
+        if (currentCheckpoint != null)
+        {
+            currentCheckpoint.ScanAreaForHazards();
+        }
+        else if (GridManager.Instance != null)
+        {
+            GridManager.Instance.HandlePlatformImpact(startPosition);
+        }
     }
 
     private void SetControl(bool enabled)

@@ -9,10 +9,8 @@ public class Checkpoint : MonoBehaviour
     [SerializeField] private Vector2 spawnOffset = new Vector2(0f, 0.5f);
 
     [Header("Scanner Area Settings")]
-    [Tooltip("How far out this flag scans for platform tiles to reveal cracks/hazards.")]
-    [SerializeField] private float scanRadius = 18.0f;
-    [Tooltip("The layer assigned to your platform/rock tiles.")]
-    [SerializeField] private LayerMask platformLayer;
+    [Tooltip("GridManager reference. Auto-finds in scene if left unassigned.")]
+    [SerializeField] private GridManager gridManager;
 
     [Header("Visual & Event Feedback")]
     [SerializeField] private SpriteRenderer spriteToTint;
@@ -30,6 +28,14 @@ public class Checkpoint : MonoBehaviour
         spriteToTint = GetComponent<SpriteRenderer>();
     }
 
+    private void Awake()
+    {
+        if (gridManager == null)
+        {
+            gridManager = FindFirstObjectByType<GridManager>();
+        }
+    }
+
     private void Start()
     {
         SetActiveVisual(false);
@@ -37,7 +43,6 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // 1. Boitumelo's Respawn Hook
         PlayerRespawn respawn = other.GetComponentInParent<PlayerRespawn>();
         if (respawn == null) return;
 
@@ -50,24 +55,36 @@ public class Checkpoint : MonoBehaviour
             onFirstActivated?.Invoke();
         }
 
-        // 2. Tiara's Scanner System Execution
+        ScanAreaForHazards();
+    }
+
+    // Allows clicking the flag directly with mouse to test/activate scan
+    private void OnMouseDown()
+    {
+        if (!hasBeenReached)
+        {
+            hasBeenReached = true;
+            SetActiveVisual(true);
+            onFirstActivated?.Invoke();
+        }
+
         ScanAreaForHazards();
     }
 
     public void ScanAreaForHazards()
     {
-        Collider2D[] platforms = Physics2D.OverlapCircleAll(transform.position, scanRadius, platformLayer);
+        if (gridManager == null)
+            gridManager = FindFirstObjectByType<GridManager>();
 
-        foreach (var col in platforms)
+        if (gridManager != null)
         {
-            TileVisualizer tile = col.GetComponent<TileVisualizer>();
-            if (tile != null)
-            {
-                tile.ExposeVisualClues();
-            }
+            gridManager.HandlePlatformImpact(transform.position);
+            Debug.Log($"[Scanner Flag] Scanning hazards from flag position {transform.position}");
         }
-
-        Debug.Log($"[Scanner Flag] Scanned area! Visual clues revealed on {platforms.Length} tiles.");
+        else
+        {
+            Debug.LogError("[Scanner Flag] Cannot scan: GridManager reference missing!");
+        }
     }
 
     public void SetActiveVisual(bool active)
@@ -81,6 +98,6 @@ public class Checkpoint : MonoBehaviour
         Gizmos.DrawWireSphere(SpawnPosition, 0.25f);
 
         Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, scanRadius);
+        Gizmos.DrawWireSphere(transform.position, 40.0f);
     }
 }
