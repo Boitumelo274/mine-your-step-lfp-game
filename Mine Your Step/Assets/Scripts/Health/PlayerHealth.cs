@@ -18,6 +18,7 @@ public class PlayerHealth : MonoBehaviour
 
     // Event expected by HeartsUI
     public event Action<int, int> OnHealthChanged;
+    public event Action OnDied;
 
     private void Awake()
     {
@@ -88,5 +89,13 @@ public class PlayerHealth : MonoBehaviour
     {
         isDead = true;
         Debug.Log("Player has died! Game Over.");
+
+        MinerController controller = GetComponent<MinerController>();
+        if (controller != null)
+        {
+            controller.TriggerDeath();
+        }
+
+        OnDied?.Invoke();
     }
 }
