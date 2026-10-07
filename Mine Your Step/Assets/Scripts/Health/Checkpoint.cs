@@ -1,21 +1,21 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-/// <summary>
-/// Drop this on any object with a Collider2D (set to Is Trigger) and place as many as you like.
-/// Touching one makes it the player's respawn point. No numbering or lists to maintain.
-/// </summary>
 [RequireComponent(typeof(Collider2D))]
 public class Checkpoint : MonoBehaviour
 {
-    [Tooltip("Where the player appears, relative to this object. (0, 0.5) puts them just above it.")]
+    [Header("Checkpoint Setup")]
+    [Tooltip("Where the player appears relative to this flag.")]
     [SerializeField] private Vector2 spawnOffset = new Vector2(0f, 0.5f);
 
-    [Header("Feedback (all optional)")]
+    [Header("Scanner Area Settings")]
+    [Tooltip("GridManager reference. Auto-finds in scene if left unassigned.")]
+    [SerializeField] private GridManager gridManager;
+
+    [Header("Visual & Event Feedback")]
     [SerializeField] private SpriteRenderer spriteToTint;
     [SerializeField] private Color inactiveColor = Color.gray;
     [SerializeField] private Color activeColor = Color.white;
-    [Tooltip("Runs the first time the player reaches this checkpoint. Hook up a sound or particles here.")]
     [SerializeField] private UnityEvent onFirstActivated;
 
     private bool hasBeenReached;
@@ -26,6 +26,14 @@ public class Checkpoint : MonoBehaviour
     {
         GetComponent<Collider2D>().isTrigger = true;
         spriteToTint = GetComponent<SpriteRenderer>();
+    }
+
+    private void Awake()
+    {
+        if (gridManager == null)
+        {
+            gridManager = FindFirstObjectByType<GridManager>();
+        }
     }
 
     private void Start()
@@ -43,7 +51,39 @@ public class Checkpoint : MonoBehaviour
         if (!hasBeenReached)
         {
             hasBeenReached = true;
+            SetActiveVisual(true);
             onFirstActivated?.Invoke();
+        }
+
+        ScanAreaForHazards();
+    }
+
+    // Allows clicking the flag directly with mouse to test/activate scan
+    private void OnMouseDown()
+    {
+        if (!hasBeenReached)
+        {
+            hasBeenReached = true;
+            SetActiveVisual(true);
+            onFirstActivated?.Invoke();
+        }
+
+        ScanAreaForHazards();
+    }
+
+    public void ScanAreaForHazards()
+    {
+        if (gridManager == null)
+            gridManager = FindFirstObjectByType<GridManager>();
+
+        if (gridManager != null)
+        {
+            gridManager.HandlePlatformImpact(transform.position);
+            Debug.Log($"[Scanner Flag] Scanning hazards from flag position {transform.position}");
+        }
+        else
+        {
+            Debug.LogError("[Scanner Flag] Cannot scan: GridManager reference missing!");
         }
     }
 
@@ -56,5 +96,8 @@ public class Checkpoint : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(SpawnPosition, 0.25f);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, 40.0f);
     }
 }

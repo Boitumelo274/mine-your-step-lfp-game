@@ -235,6 +235,43 @@ public class MinerController : MonoBehaviour
         }
     }
 
+   
+    public void TriggerDeath()
+    {
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+            animator.SetBool("IsGrounded", true);
+            animator.SetTrigger("Die");
+        }
+
+        // Stop sideways movement, then make sure gravity pulls the body down to the floor.
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+        rb.gravityScale = (defaultGravity * dropGravityMultiplier) / Mathf.Abs(Physics2D.gravity.y);
+        rb.freezeRotation = true;
+
+        
+        DeathColliderFit fit = GetComponent<DeathColliderFit>();
+        if (fit != null) fit.Begin();
+        else LayCapsuleDown();
+        enabled = false;
+    }
+
+    // Turns the standing capsule onto its side so the body rests on the floor like the
+    // death animation shows. The bottom edge stays where it was, so the body doesn't sink.
+    private void LayCapsuleDown()
+    {
+        CapsuleCollider2D capsule = GetComponent<CapsuleCollider2D>();
+        if (capsule == null || capsule.direction == CapsuleDirection2D.Horizontal) return;
+
+        float bottomY = capsule.offset.y - capsule.size.y * 0.5f;
+        Vector2 newSize = new Vector2(capsule.size.y, capsule.size.x);
+
+        capsule.direction = CapsuleDirection2D.Horizontal;
+        capsule.size = newSize;
+        capsule.offset = new Vector2(capsule.offset.x, bottomY + newSize.y * 0.5f);
+    }
+
     private void Flip()
     {
         if ((facingRight && movementInput.x < 0f) || (!facingRight && movementInput.x > 0f))
@@ -323,14 +360,3 @@ public class MinerController : MonoBehaviour
 }
 
 
-//public void TriggerDeath()
-//{
-//    if (animator != null)
-//    {
-//        animator.SetTrigger("Die");
-//    }
-
-//    // Optional: Disable movement when dead
-//    this.enabled = false;
-//    rb.linearVelocity = Vector2.zero;
-//}

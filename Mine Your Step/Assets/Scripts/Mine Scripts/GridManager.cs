@@ -1,165 +1,150 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    [Header("Minesweeper Configuration")]
-    [Tooltip("Target number of hidden mines to spawn inside the red hazard zones.")]
-    [SerializeField] private int targetMines = 2;
+    public static GridManager Instance { get; private set; }
 
-    [Tooltip("Distance radius to detect adjacent hidden mines (Set to ~12 to cover 1-2 platform steps).")]
-    [SerializeField] private float detectionRadius = 12.0f;
+    [Header("Grid Setup")]
+    public Transform hazardIndicatorsParent;
+    public int targetMines = 15;
 
-    [Header("Hazard Zone Filtering")]
-    [Tooltip("Drag Worldbuilding here so it loops through all Indicator blocks.")]
-    [SerializeField] private Transform hazardIndicatorsParent;
+    [Header("Scanner Area Settings")]
+    public float scanRangeX = 600f;
 
-    // Static event triggered by platform impacts
-    public static Action<Vector2> OnPlatformStruck;
+    [Header("Neighbor Step Spacing")]
+    public float maxStepDistanceX = 16.0f;
+    public float maxRowHeightGapY = 1.5f;
 
-    private Dictionary<Vector2Int, TileVisualizer> grid = new Dictionary<Vector2Int, TileVisualizer>();
-    private HashSet<Vector2Int> hazardGrid = new HashSet<Vector2Int>();
-    private List<Vector2> indicatorWorldPositions = new List<Vector2>();
+    private List<TileVisualizer> allTiles = new List<TileVisualizer>();
 
     private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        InitializeGridSystem();
+    }
+
+    public void InitializeGridSystem()
     {
         CacheHazardZones();
         GenerateMines();
     }
 
-    private void OnEnable()
-    {
-        OnPlatformStruck += HandlePlatformImpact;
-    }
-
-    private void OnDisable()
-    {
-        OnPlatformStruck -= HandlePlatformImpact;
-    }
-
     private void CacheHazardZones()
     {
-        indicatorWorldPositions.Clear();
+        allTiles.Clear();
+        if (hazardIndicatorsParent == null) return;
 
-        if (hazardIndicatorsParent != null)
-        {
-            foreach (Transform child in hazardIndicatorsParent)
-            {
-                if (child.name.StartsWith("Indicator"))
-                {
-                    indicatorWorldPositions.Add(child.position);
-                }
-            }
-        }
-        else
-        {
-#pragma warning disable 0618
-            GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
-#pragma warning restore 0618
+        TileVisualizer[] tiles = hazardIndicatorsParent.GetComponentsInChildren<TileVisualizer>();
+        allTiles.AddRange(tiles);
 
-            foreach (GameObject obj in allObjects)
-            {
-                if (obj.name.StartsWith("Indicator"))
-                {
-                    indicatorWorldPositions.Add(obj.transform.position);
-                }
-            }
-        }
-
-        Debug.Log($"GridManager: Cached {indicatorWorldPositions.Count} red hazard indicator zones.");
+        Debug.Log($"[GridManager] Cached {allTiles.Count} total platform tiles across scene.");
     }
 
     public void GenerateMines()
     {
-        UnityEngine.Random.InitState((int)System.DateTime.Now.Ticks);
-        hazardGrid.Clear();
+        if (allTiles.Count == 0) return;
 
-        if (indicatorWorldPositions.Count == 0)
+        // Reset existing tiles completely
+        foreach (var tile in allTiles)
         {
-            Debug.LogWarning("GridManager: No red indicator zones found to place mines!");
-            return;
+            tile.isMine = false;
+            tile.isDetonated = false;
+            tile.isFlagged = false;
+            tile.ResetVisual();
         }
 
-        // Shuffle indicator positions and pick exact target number of hidden mines
-        List<Vector2> availablePositions = new List<Vector2>(indicatorWorldPositions);
-        int minesToSpawn = Mathf.Min(targetMines, availablePositions.Count);
+        int minesToPlace = Mathf.Min(targetMines, allTiles.Count);
+        List<TileVisualizer> availableTiles = new List<TileVisualizer>(allTiles);
 
-        for (int i = 0; i < minesToSpawn; i++)
+        // Exclude the first 3 starting tiles from spawning mines
+        if (availableTiles.Count > 3)
         {
-            int randomIndex = UnityEngine.Random.Range(0, availablePositions.Count);
-            Vector2 chosenPos = availablePositions[randomIndex];
-            Vector2Int gridKey = new Vector2Int(Mathf.RoundToInt(chosenPos.x), Mathf.RoundToInt(chosenPos.y));
-
-            hazardGrid.Add(gridKey);
-            availablePositions.RemoveAt(randomIndex);
+            availableTiles.RemoveRange(0, 3);
         }
 
-        Debug.Log($"GridManager: Active hidden mines spawned: {hazardGrid.Count} (Inside {indicatorWorldPositions.Count} red hazard zones).");
-    }
-
-    public void RegisterTileVisualizer(int x, int y, TileVisualizer tile)
-    {
-        Vector2Int key = new Vector2Int(x, y);
-        grid[key] = tile;
-    }
-
-    private void HandlePlatformImpact(Vector2 worldPosition)
-    {
-        TileVisualizer struckTile = null;
-
-        float closestDistance = float.MaxValue;
-        foreach (var entry in grid.Values)
+        int placed = 0;
+        while (placed < minesToPlace && availableTiles.Count > 0)
         {
-            if (entry != null)
+            int index = Random.Range(0, availableTiles.Count);
+            availableTiles[index].isMine = true;
+            availableTiles.RemoveAt(index);
+            placed++;
+        }
+
+        Debug.Log($"[GridManager] Generated {placed} hidden mines.");
+    }
+
+    public void HandlePlatformImpact(Vector2 impactPosition)
+    {
+        int scannedCount = 0;
+
+        foreach (var tile in allTiles)
+        {
+            if (Mathf.Abs(tile.transform.position.x - impactPosition.x) > scanRangeX)
+                continue;
+
+            scannedCount++;
+
+            // Real mines stay hidden as standard rocks during scans
+            if (tile.isMine)
             {
-                float dist = Vector2.Distance(entry.transform.position, worldPosition);
-                if (dist < 4.0f && dist < closestDistance)
+                continue;
+            }
+
+            int count = CountAdjacentMines(tile);
+
+            if (tile.spriteRenderer != null)
+            {
+                if (count == 1 && tile.hairlineCrackSprite != null)
                 {
-                    closestDistance = dist;
-                    struckTile = entry;
+                    tile.spriteRenderer.sprite = tile.hairlineCrackSprite;
+                }
+                else if (count >= 2 && tile.spiderCrackSprite != null)
+                {
+                    tile.spriteRenderer.sprite = tile.spiderCrackSprite;
+                }
+                else if (count == 0 && tile.defaultRockSprite != null)
+                {
+                    tile.spriteRenderer.sprite = tile.defaultRockSprite;
                 }
             }
         }
 
-        if (struckTile != null)
-        {
-            bool isDirectMineHit = IsTileAMine(struckTile.transform.position);
-            int adjacentMinesCount = ScanAdjacentHazards(struckTile.transform.position);
-
-            struckTile.DeformAndApplyStressCue(adjacentMinesCount, isDirectMineHit);
-
-            Debug.Log($"GridManager: Rock '{struckTile.name}' landed on. Direct Mine: {isDirectMineHit}, Nearby Mines: {adjacentMinesCount}");
-        }
+        Debug.Log($"[GridManager] Scanned {scannedCount} tiles from position {impactPosition}.");
     }
 
-    private bool IsTileAMine(Vector3 tileWorldPos)
-    {
-        Vector2 tilePos2D = new Vector2(tileWorldPos.x, tileWorldPos.y);
-        foreach (Vector2Int hazardKey in hazardGrid)
-        {
-            Vector2 hazardPos = new Vector2(hazardKey.x, hazardKey.y);
-            if (Vector2.Distance(tilePos2D, hazardPos) <= 3.5f)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private int ScanAdjacentHazards(Vector3 tileWorldPos)
+    private int CountAdjacentMines(TileVisualizer currentTile)
     {
         int count = 0;
-        Vector2 tilePos2D = new Vector2(tileWorldPos.x, tileWorldPos.y);
+        Vector2 currentPos = currentTile.transform.position;
 
-        foreach (Vector2Int hazardKey in hazardGrid)
+        foreach (var otherTile in allTiles)
         {
-            Vector2 hazardPos = new Vector2(hazardKey.x, hazardKey.y);
-            float distance = Vector2.Distance(tilePos2D, hazardPos);
+            if (otherTile == currentTile) continue;
 
-            if (distance > 3.5f && distance <= detectionRadius)
+            Vector2 otherPos = otherTile.transform.position;
+
+            float distX = Mathf.Abs(otherPos.x - currentPos.x);
+            float distY = Mathf.Abs(otherPos.y - currentPos.y);
+
+            if (distX > 0.1f && distX <= maxStepDistanceX && distY <= maxRowHeightGapY)
             {
-                count++;
+                if (otherTile.isMine)
+                {
+                    count++;
+                }
             }
         }
 

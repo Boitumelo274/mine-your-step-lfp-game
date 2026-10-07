@@ -1,69 +1,101 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// Holds the player's health as a whole number of hearts. Anything that hurts the player
-/// (lava now, enemies later) just calls TakeDamage(). When health reaches 0, OnDied fires —
-/// hook your death/respawn/game-over logic to that event when you build it.
-/// </summary>
 public class PlayerHealth : MonoBehaviour
 {
-    [SerializeField, Min(1)] private int maxHealth = 5;
-    [Tooltip("Seconds after a hit during which further damage is ignored (stops one lava touch from costing several hearts).")]
-    [SerializeField, Min(0f)] private float invincibilityTime = 1f;
+    [Header("Health Settings")]
+    public int maxHealth = 5;
+    public int currentHealth;
+    public bool isDead = false;
 
-    public int CurrentHealth { get; private set; }
+    [Header("Respawn Reference")]
+    [SerializeField] private PlayerRespawn playerRespawn;
+
+    // PascalCase Properties expected by HeartsUI & LavaHazards
     public int MaxHealth => maxHealth;
-    public bool IsDead => CurrentHealth <= 0;
+    public int CurrentHealth => currentHealth;
+    public bool IsDead => isDead;
 
-    /// <summary>(currentHealth, maxHealth)</summary>
+    // Event expected by HeartsUI
     public event Action<int, int> OnHealthChanged;
-    /// <summary>Fires once when health hits 0. Connect your death logic here later.</summary>
     public event Action OnDied;
-
-    private float lastHitTime = -999f;
 
     private void Awake()
     {
-        CurrentHealth = maxHealth;
+        if (playerRespawn == null)
+            playerRespawn = GetComponent<PlayerRespawn>();
     }
 
     private void Start()
     {
-        // Push the starting value so any hearts UI draws itself correctly.
-        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
     }
 
-    /// <returns>true if the damage was actually applied.</returns>
-    public bool TakeDamage(int amount = 1)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (IsDead || amount <= 0) return false;
-        if (Time.time - lastHitTime < invincibilityTime) return false;
+        if (isDead) return;
 
-        lastHitTime = Time.time;
-        CurrentHealth = Mathf.Max(CurrentHealth - amount, 0);
-        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
-
-        if (CurrentHealth == 0)
+        TileVisualizer tile = collision.gameObject.GetComponent<TileVisualizer>();
+        if (tile == null)
         {
-            Debug.Log("[PlayerHealth] Health reached 0 : death would trigger here.", this);
-            OnDied?.Invoke();
+            tile = collision.gameObject.GetComponentInParent<TileVisualizer>();
         }
+
+        // STEPPED ON A MINE (Ignores detonated AND disarmed mines)
+        if (tile != null && tile.isMine && !tile.isDetonated && !tile.isDisarmed)
+        {
+            Debug.Log($"[BOOM] Player stepped on active hidden mine at {tile.transform.position}!");
+            tile.Detonate();
+
+            // Deal ONLY 1 point of damage
+            TakeDamage(1);
+
+            // If still alive, respawn at active checkpoint & reset mines
+            if (currentHealth > 0)
+            {
+                if (playerRespawn != null)
+                {
+                    playerRespawn.Respawn();
+                }
+                else
+                {
+                    Debug.LogWarning("[PlayerHealth] PlayerRespawn component reference is missing!");
+                }
+            }
+        }
+    }
+
+    public bool TakeDamage(int damage)
+    {
+        if (isDead) return false;
+
+        currentHealth -= damage;
+        if (currentHealth < 0) currentHealth = 0;
+
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
+        Debug.Log($"Player took {damage} damage! Current health: {currentHealth}/{maxHealth}");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+
         return true;
     }
 
-    public void Heal(int amount = 1)
+    private void Die()
     {
-        if (IsDead || amount <= 0) return;
-        CurrentHealth = Mathf.Min(CurrentHealth + amount, maxHealth);
-        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
-    }
+        isDead = true;
+        Debug.Log("Player has died! Game Over.");
 
-    /// <summary>Restores full health (use after respawn / restart).</summary>
-    public void ResetHealth()
-    {
-        CurrentHealth = maxHealth;
-        lastHitTime = -999f;
-        OnHealthChanged?.Invoke(CurrentHealth, maxHealth);
+        MinerController controller = GetComponent<MinerController>();
+        if (controller != null)
+        {
+            controller.TriggerDeath();
+        }
+
+        OnDied?.Invoke();
     }
 }
