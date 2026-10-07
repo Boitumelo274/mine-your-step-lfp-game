@@ -513,7 +513,7 @@
                 {
                     "name": "",
                     "id": "0a861cbe-c6b0-4d00-92ed-2df606c10a92",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
@@ -535,7 +535,7 @@
                 {
                     "name": "modifier",
                     "id": "5a19a1ab-1d70-4762-a3f0-3b77befe0303",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
