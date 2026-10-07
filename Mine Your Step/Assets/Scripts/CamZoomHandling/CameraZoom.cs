@@ -2,12 +2,6 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Zooms the camera out to show a bigger part of the level while a button is held, and
-/// freezes the player for the whole thing: from the moment you press the button, through the
-/// zoom out, until the camera has fully returned to its normal size after you let go.
-/// Put it on your CinemachineCamera object. Works with Cinemachine 3 (Unity 6).
-/// </summary>
 public class CameraZoom : MonoBehaviour
 {
     public enum ZoomMode
