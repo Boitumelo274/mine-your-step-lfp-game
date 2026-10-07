@@ -4,9 +4,9 @@ using UnityEngine;
 public class UIZoomEffect : MonoBehaviour
 {
     [Header("Zoom Settings")]
-    public float zoomSpeed = 3f; // How fast the heading pulses
-    public float minScale = 0.95f; // Smallest size (0.95 = 95% of original size)
-    public float maxScale = 1.05f; // Largest size (1.05 = 105% of original size)
+    public float zoomSpeed = 3f;
+    public float minScale = 0.95f; 
+    public float maxScale = 1.05f; 
 
     private Vector3 baseScale;
 
@@ -18,7 +18,7 @@ public class UIZoomEffect : MonoBehaviour
 
     private void Update()
     {
-        // Mathf.Sin creates a smooth, continuous wave between -1 and 1 based on time
+        
         float wave = Mathf.Sin(Time.time * zoomSpeed);
 
         // Convert that -1 to 1 wave into a 0 to 1 value to smoothly blend between our min and max scale
