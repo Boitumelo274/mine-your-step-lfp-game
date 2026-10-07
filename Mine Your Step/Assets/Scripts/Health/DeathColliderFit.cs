@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Add to the miner (next to MinerController). It stays idle until MinerController.TriggerDeath()
-/// calls Begin(). After that, every frame it resizes the capsule collider to match whatever the
-/// death animation currently looks like, so the body that is drawn is the body that touches the floor.
-/// </summary>
 [RequireComponent(typeof(CapsuleCollider2D))]
 public class DeathColliderFit : MonoBehaviour
 {

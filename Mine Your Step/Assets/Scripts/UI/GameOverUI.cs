@@ -5,10 +5,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-/// <summary>
-/// Shows a game over panel AFTER the death animation has finished playing, fading in smoothly:
-/// the dark background first, then the title, message and buttons.
-/// </summary>
 public class GameOverUI : MonoBehaviour
 {
     [Header("References")]
