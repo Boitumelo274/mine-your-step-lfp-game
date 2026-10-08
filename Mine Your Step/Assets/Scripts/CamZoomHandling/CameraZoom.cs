@@ -21,11 +21,11 @@ public class CameraZoom : MonoBehaviour
     [Tooltip("Seconds to glide between the two sizes. Higher = slower and smoother.")]
     [SerializeField, Min(0.01f)] private float smoothTime = 0.4f;
 
-    [Header("Freeze Player")]
-    [Tooltip("Found automatically (the object with PlayerHealth) if left empty.")]
-    [SerializeField] private GameObject player;
-    [Tooltip("Scripts switched off while the camera is zoomed. If left empty, the player's MinerController is used.")]
-    [SerializeField] private Behaviour[] disableWhileZoomed;
+    //[Header("Freeze Player")]
+    //[Tooltip("Found automatically (the object with PlayerHealth) if left empty.")]
+    //[SerializeField] private GameObject player;
+    //[Tooltip("Scripts switched off while the camera is zoomed. If left empty, the player's MinerController is used.")]
+    //[SerializeField] private Behaviour[] disableWhileZoomed;
 
     [Header("References (found automatically if empty)")]
     [SerializeField] private CinemachineCamera cinemachineCamera;
@@ -36,11 +36,11 @@ public class CameraZoom : MonoBehaviour
     private float velocity;
     private bool toggledOut;
 
-    private Rigidbody2D playerBody;
-    private Animator playerAnimator;
-    private PlayerHealth playerHealth;
-    private PlayerRespawn playerRespawn;
-    private MinerMining playerMining;
+    //private Rigidbody2D playerBody;
+    //private Animator playerAnimator;
+    //private PlayerHealth playerHealth;
+    //private PlayerRespawn playerRespawn;
+    //private MinerMining playerMining;
 
     /// <summary>True from the moment the zoom button is pressed until the camera is back to normal.</summary>
     public bool IsFrozen { get; private set; }
@@ -54,30 +54,30 @@ public class CameraZoom : MonoBehaviour
         normalSize = ReadSize();
         currentSize = normalSize;
 
-        if (player == null)
-        {
-            PlayerHealth found = FindFirstObjectByType<PlayerHealth>();
-            if (found != null) player = found.gameObject;
-        }
+        //if (player == null)
+        //{
+        //    PlayerHealth found = FindFirstObjectByType<PlayerHealth>();
+        //    if (found != null) player = found.gameObject;
+        //}
 
-        if (player != null)
-        {
-            playerBody = player.GetComponent<Rigidbody2D>();
-            playerAnimator = player.GetComponent<Animator>();
-            playerHealth = player.GetComponent<PlayerHealth>();
-            playerRespawn = player.GetComponent<PlayerRespawn>();
-            playerMining = player.GetComponent<MinerMining>();
+        //if (player != null)
+        //{
+        //    playerBody = player.GetComponent<Rigidbody2D>();
+        //    playerAnimator = player.GetComponent<Animator>();
+        //    playerHealth = player.GetComponent<PlayerHealth>();
+        //    playerRespawn = player.GetComponent<PlayerRespawn>();
+        //    playerMining = player.GetComponent<MinerMining>();
 
-            if (disableWhileZoomed == null || disableWhileZoomed.Length == 0)
-            {
-                MinerController controller = player.GetComponent<MinerController>();
-                if (controller != null) disableWhileZoomed = new Behaviour[] { controller };
-            }
-        }
-        else
-        {
-            Debug.LogWarning("[CameraZoom] No player found, so the player won't be frozen while zooming.", this);
-        }
+        //    if (disableWhileZoomed == null || disableWhileZoomed.Length == 0)
+        //    {
+        //        MinerController controller = player.GetComponent<MinerController>();
+        //        if (controller != null) disableWhileZoomed = new Behaviour[] { controller };
+        //    }
+        //}
+        //else
+        //{
+        //    Debug.LogWarning("[CameraZoom] No player found, so the player won't be frozen while zooming.", this);
+        //}
     }
 
     private void OnEnable()
@@ -116,7 +116,7 @@ public class CameraZoom : MonoBehaviour
         }
 
         // Freeze the instant the button goes down.
-        if (wantZoomOut && !IsFrozen) SetFrozen(true);
+        //if (wantZoomOut && !IsFrozen) SetFrozen(true);
 
         float target = wantZoomOut ? normalSize * zoomOutMultiplier : normalSize;
         bool arrived = Mathf.Abs(currentSize - target) < 0.001f && Mathf.Abs(velocity) < 0.001f;
@@ -129,20 +129,20 @@ public class CameraZoom : MonoBehaviour
         }
 
         // Unfreeze only once the button is released AND the camera is back at its original size.
-        if (IsFrozen && !wantZoomOut && Mathf.Abs(currentSize - normalSize) < 0.02f)
-        {
-            currentSize = normalSize;
-            velocity = 0f;
-            WriteSize(currentSize);
-            SetFrozen(false);
-        }
+        //if (IsFrozen && !wantZoomOut && Mathf.Abs(currentSize - normalSize) < 0.02f)
+        //{
+        //    currentSize = normalSize;
+        //    velocity = 0f;
+        //    WriteSize(currentSize);
+        //    SetFrozen(false);
+        //}
     }
 
     private bool CanZoom()
     {
-        if (playerHealth != null && playerHealth.IsDead) return false;
-        if (playerRespawn != null && playerRespawn.IsRespawning) return false;
-        if (playerMining != null && playerMining.IsMining) return false;
+        //if (playerHealth != null && playerHealth.IsDead) return false;
+        //if (playerRespawn != null && playerRespawn.IsRespawning) return false;
+        //if (playerMining != null && playerMining.IsMining) return false;
         return true;
     }
 
@@ -154,31 +154,31 @@ public class CameraZoom : MonoBehaviour
         {
             SetControl(false);
 
-            if (playerBody != null) playerBody.linearVelocity = new Vector2(0f, playerBody.linearVelocity.y);
-            if (playerAnimator != null) playerAnimator.SetFloat("Speed", 0f); // so the run animation doesn't keep playing
+            //if (playerBody != null) playerBody.linearVelocity = new Vector2(0f, playerBody.linearVelocity.y);
+            //if (playerAnimator != null) playerAnimator.SetFloat("Speed", 0f); // so the run animation doesn't keep playing
         }
         else
         {
             // Don't hand control back if death or a respawn has taken over in the meantime.
-            bool dead = playerHealth != null && playerHealth.IsDead;
-            bool respawning = playerRespawn != null && playerRespawn.IsRespawning;
-            if (!dead && !respawning) SetControl(true);
+            //bool dead = playerHealth != null && playerHealth.IsDead;
+            //bool respawning = playerRespawn != null && playerRespawn.IsRespawning;
+            //if (!dead && !respawning) SetControl(true);
         }
     }
 
     private void SetControl(bool enabled)
     {
-        if (disableWhileZoomed == null) return;
+        //if (disableWhileZoomed == null) return;
 
-        foreach (Behaviour b in disableWhileZoomed)
-        {
-            if (b == null) continue;
+        //foreach (Behaviour b in disableWhileZoomed)
+        //{
+        //    if (b == null) continue;
 
-            // Switching the Animator off would freeze the sprite mid-pose, so never do that.
-            if (b is Animator) continue;
+        //    // Switching the Animator off would freeze the sprite mid-pose, so never do that.
+        //    if (b is Animator) continue;
 
-            b.enabled = enabled;
-        }
+        //    b.enabled = enabled;
+        //}
     }
 
     private float ReadSize()

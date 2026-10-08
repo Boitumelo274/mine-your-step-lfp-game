@@ -24,12 +24,18 @@ public class MinerMining : MonoBehaviour
     [Tooltip("Drag your control scripts here (e.g. MinerController). They're switched off while mining so the miner stays put.")]
     [SerializeField] private Behaviour[] disableWhileMining;
 
+    [Tooltip("If ticked, the prompt is shown only until the first time the miner mines something, then never again.")]
+    [SerializeField] private bool showPromptOnlyOnce = true;
+
+    private bool promptDismissed;
+
     [Header("Prompt (optional)")]
     [Tooltip("Object shown while a jewel is in range, e.g. a small text label.")]
     [SerializeField] private GameObject promptObject;
     [SerializeField] private TMP_Text promptText;
     [Tooltip("{0} is replaced with the current key name, so it updates if you change the binding.")]
     [SerializeField] private string promptFormat = "Press {0} to mine";
+
 
     private Rigidbody2D rb;
     private Animator animator;
@@ -117,7 +123,7 @@ public class MinerMining : MonoBehaviour
 
     private void UpdatePrompt()
     {
-        bool show = target != null;
+        bool show = target != null && !promptDismissed;
 
         if (promptObject != null && promptObject.activeSelf != show) promptObject.SetActive(show);
 
@@ -130,6 +136,7 @@ public class MinerMining : MonoBehaviour
     private IEnumerator MineRoutine(MineableJewel jewel)
     {
         isMining = true;
+        if (showPromptOnlyOnce) promptDismissed = true;
         if (promptObject != null) promptObject.SetActive(false);
 
         // The miner can't move or act for the whole mining sequence.
