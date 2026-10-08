@@ -12,8 +12,8 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private PlayerInventory inventory;
     [SerializeField] private TMP_Text listText;
     [Tooltip("Shown above the list. Leave empty for none.")]
-    [SerializeField] private string header = "Jewels";
-    [Tooltip("{0} = name, {1} = count")]
+    //[SerializeField] private string header = "";
+    //[Tooltip("{0} = name, {1} = count")]
     [SerializeField] private string lineFormat = "{0}  x{1}";
 
     private void OnEnable()
@@ -41,11 +41,12 @@ public class InventoryUI : MonoBehaviour
         if (listText == null) return;
 
         StringBuilder sb = new StringBuilder();
-        if (!string.IsNullOrEmpty(header)) sb.AppendLine(header);
+        //if (!string.IsNullOrEmpty(header)) sb.AppendLine(header);
 
         foreach (KeyValuePair<string, int> pair in inventory.Items)
         {
-            sb.AppendLine(string.Format(lineFormat, pair.Key, pair.Value));
+            //sb.AppendLine(string.Format(lineFormat, pair.Key, pair.Value));
+            sb.AppendLine(pair.Value.ToString());
         }
 
         listText.text = sb.ToString();
