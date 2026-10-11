@@ -28,7 +28,7 @@ public class MinerController : MonoBehaviour
     [Header("Platform Impact")]
     [Tooltip("Scales how much a ground-slam impact bends a BendablePlatform.")]
     [SerializeField] private float slamForceMultiplier = 1f;
-    [Tooltip("Fixed force applied to a BendablePlatform when headbutting it — independent of how fast the miner was moving. Increase for a deeper upward fold.")]
+    [Tooltip("Fixed force applied to a BendablePlatform when headbutting it ï¿½ independent of how fast the miner was moving. Increase for a deeper upward fold.")]
     [SerializeField] private float headButtImpactForce = 150f;
     [Tooltip("After a headbutt connects with a platform, zero out the vertical velocity so the miner immediately starts falling instead of drifting upward into the deformed platform.")]
     [SerializeField] private bool killVerticalVelocityOnHeadButtImpact = true;
@@ -60,6 +60,13 @@ public class MinerController : MonoBehaviour
 
     private float defaultGravity;
     private float jumpVelocity;
+
+    [Header("Particle System")]
+    [SerializeField] private ParticleSystem dustParticles;
+    //[SerializeField] private Rigidbody2D rigidBody;
+
+    private Vector2 particlesStartPos;
+
 
     private void Awake()
     {
@@ -114,7 +121,13 @@ public class MinerController : MonoBehaviour
             animator.SetBool("IsGrounded", isGrounded);
         }
 
+        StartStopParticles();
         Flip();
+    }
+
+    private void Start()
+    {
+        particlesStartPos = dustParticles.transform.localPosition;
     }
 
     private void FixedUpdate()
@@ -139,7 +152,7 @@ public class MinerController : MonoBehaviour
             }
             else
             {
-                // Actively moving or airborne — normal control, release the lock.
+                // Actively moving or airborne ï¿½ normal control, release the lock.
                 hasLockedPosition = false;
                 rb.linearVelocity = new Vector2(movementInput.x * moveSpeed, rb.linearVelocity.y);
             }
@@ -274,12 +287,44 @@ public class MinerController : MonoBehaviour
 
     private void Flip()
     {
-        if ((facingRight && movementInput.x < 0f) || (!facingRight && movementInput.x > 0f))
+       
+        if (facingRight && movementInput.x < 0f)
         {
-            facingRight = !facingRight;
+            // Turning LEFT
+            facingRight = false;
+
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
+
+            // Left-facing particle setup goes here
+            dustParticles.transform.localPosition = particlesStartPos;
+            dustParticles.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        }
+        else if (!facingRight && movementInput.x > 0f)
+        {
+            // Turning RIGHT
+            facingRight = true;
+
+            Vector3 localScale = transform.localScale;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+
+            // Right-facing particle setup goes here
+            dustParticles.transform.localPosition = particlesStartPos;
+            dustParticles.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        }
+    }
+
+    private void StartStopParticles()
+    {
+        if (rb.linearVelocity.y != 0 || Mathf.Abs(movementInput.x) < 0.01f)
+        {
+            dustParticles.Stop();
+
+        }else if (!dustParticles.isPlaying) 
+        {
+            dustParticles.Play();
         }
     }
 
@@ -326,7 +371,7 @@ public class MinerController : MonoBehaviour
             ContactPoint2D contact = collision.GetContact(0);
 
             // Unlike the slam, this is a fixed, hand-tuned force rather than something
-            // derived from impact velocity/mass — so the fold depth stays consistent
+            // derived from impact velocity/mass ï¿½ so the fold depth stays consistent
             // and predictable no matter how the headbutt arc was configured.
             float impactForce = headButtImpactForce;
 
@@ -334,7 +379,7 @@ public class MinerController : MonoBehaviour
             // from below), the opposite direction of a slam.
             bendable.ApplyImpact(contact.point, impactForce, bulgeUpward: true);
 
-            // The headbutt has resolved on impact — stop the launch early and let gravity
+            // The headbutt has resolved on impact ï¿½ stop the launch early and let gravity
             // take over, instead of waiting for the natural apex check in FixedUpdate.
             isHeadButting = false;
 
