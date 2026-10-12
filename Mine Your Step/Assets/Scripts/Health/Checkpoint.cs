@@ -11,6 +11,7 @@ public class Checkpoint : MonoBehaviour
     [Header("Scanner Area Settings")]
     [Tooltip("GridManager reference. Auto-finds in scene if left unassigned.")]
     [SerializeField] private GridManager gridManager;
+    [SerializeField] private ScreenShake screenShake;
 
     [Header("Visual & Event Feedback")]
     [SerializeField] private SpriteRenderer spriteToTint;
@@ -34,6 +35,11 @@ public class Checkpoint : MonoBehaviour
         {
             gridManager = FindFirstObjectByType<GridManager>();
         }
+
+        if(screenShake == null)
+        {
+            screenShake = FindFirstObjectByType<ScreenShake>();
+        }
     }
 
     private void Start()
@@ -43,6 +49,7 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+ 
         PlayerRespawn respawn = other.GetComponentInParent<PlayerRespawn>();
         if (respawn == null) return;
 
@@ -53,6 +60,8 @@ public class Checkpoint : MonoBehaviour
             hasBeenReached = true;
             SetActiveVisual(true);
             onFirstActivated?.Invoke();
+
+            if (screenShake != null) screenShake.Shake(1f);
         }
 
         ScanAreaForHazards();
@@ -66,6 +75,8 @@ public class Checkpoint : MonoBehaviour
             hasBeenReached = true;
             SetActiveVisual(true);
             onFirstActivated?.Invoke();
+
+            
         }
 
         ScanAreaForHazards();
