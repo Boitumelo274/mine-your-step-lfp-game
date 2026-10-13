@@ -2,14 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Goes on the miner. Keeps a count of every kind of jewel collected, by name.
-/// </summary>
-public class PlayerInventory : MonoBehaviour
+public class PlayerInventory : MonoBehaviour, ICheckpointable
 {
     private readonly SortedDictionary<string, int> items = new SortedDictionary<string, int>();
 
-    /// <summary>Fires whenever something is added or removed.</summary>
     public event Action OnChanged;
 
     public IReadOnlyDictionary<string, int> Items => items;
@@ -32,12 +28,10 @@ public class PlayerInventory : MonoBehaviour
     public void Add(string itemName, int amount = 1)
     {
         if (amount <= 0) return;
-
         items[itemName] = Count(itemName) + amount;
         OnChanged?.Invoke();
     }
 
-    /// <returns>true if there was enough to remove.</returns>
     public bool Remove(string itemName, int amount = 1)
     {
         int have = Count(itemName);
@@ -48,5 +42,18 @@ public class PlayerInventory : MonoBehaviour
 
         OnChanged?.Invoke();
         return true;
+    }
+
+    // --- ICheckpointable ---
+    public object CaptureState() => new Dictionary<string, int>(items);
+
+    public void RestoreState(object state)
+    {
+        items.Clear();
+        if (state is Dictionary<string, int> savedItems)
+        {
+            foreach (var pair in savedItems) items[pair.Key] = pair.Value;
+        }
+        OnChanged?.Invoke(); // Refresh UI
     }
 }

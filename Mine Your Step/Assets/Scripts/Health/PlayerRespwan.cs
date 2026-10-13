@@ -41,7 +41,7 @@ public class PlayerRespawn : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
-    /// <summary>Called by a Checkpoint when the player touches it.</summary>
+
     public void SetCheckpoint(Checkpoint checkpoint)
     {
         if (checkpoint == currentCheckpoint) return;
@@ -49,6 +49,12 @@ public class PlayerRespawn : MonoBehaviour
         if (currentCheckpoint != null) currentCheckpoint.SetActiveVisual(false);
         currentCheckpoint = checkpoint;
         currentCheckpoint.SetActiveVisual(true);
+
+        // Capture state when hitting a checkpoint
+        if (CheckpointManager.Instance != null)
+        {
+            CheckpointManager.Instance.CaptureAll();
+        }
     }
 
     /// <summary>Cinematic respawn at the last checkpoint (or the start if none reached).</summary>
@@ -88,7 +94,7 @@ public class PlayerRespawn : MonoBehaviour
                 yield return fader.FadeTo(1f, fadeOutTime);
         }
 
-        // --- SCREEN IS BLACK: TELEPORT, RESHUFFLE MINES, RE-SCAN HAZARDS ---
+      
         Teleport();
 
         yield return new WaitForSeconds(blackHoldTime);
@@ -146,6 +152,9 @@ public class PlayerRespawn : MonoBehaviour
         {
             GridManager.Instance.HandlePlatformImpact(startPosition);
         }
+
+        CheckpointManager.Instance.RestoreAll();
+
     }
 
     private void SetControl(bool enabled)
