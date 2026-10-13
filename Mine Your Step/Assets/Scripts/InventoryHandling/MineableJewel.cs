@@ -1,21 +1,16 @@
 using UnityEngine;
 
-public class MineableJewel : MonoBehaviour
+public class MineableJewel : MonoBehaviour, ICheckpointable
 {
-    [Tooltip("Name shown in the inventory. Jewels with the same name stack together.")]
     [SerializeField] private string jewelName = "";
     [SerializeField, Min(1)] private int amount = 1;
-    [Tooltip("How many times the mining animation plays before the jewel is collected.")]
     [SerializeField, Min(1)] private int mineLoops = 3;
 
     [Header("On mined")]
-    [Tooltip("Runs the block's HittableBlocks Hit event (e.g. Spawner.Spawn for particles) when mining finishes.")]
     [SerializeField] private bool triggerHitEvent = true;
-    [Tooltip("What gets destroyed when mined. Leave empty to destroy the object this script is on. If this script is on a child, drag the whole block here.")]
     [SerializeField] private GameObject destroyTarget;
 
     [Header("Optional feedback")]
-    [Tooltip("Extra particles / animation spawned where the jewel was when it's mined (separate from the Hit event).")]
     [SerializeField] private GameObject mineEffectPrefab;
     [SerializeField, Min(0.1f)] private float effectLifetime = 2f;
 
@@ -23,14 +18,14 @@ public class MineableJewel : MonoBehaviour
     public int MineLoops => mineLoops;
     public bool IsMined { get; private set; }
 
-    /// <summary>Called by MinerMining when the mining animation has looped enough times.</summary>
+    private GameObject TargetObject => destroyTarget != null ? destroyTarget : gameObject;
+
     public void Collect(PlayerInventory inventory)
     {
         if (IsMined) return;
 
         if (inventory != null) inventory.Add(jewelName, amount);
 
-        // Fire the block's Hit event
         if (triggerHitEvent)
         {
             HittableBlocks block = GetComponent<HittableBlocks>();
@@ -44,17 +39,25 @@ public class MineableJewel : MonoBehaviour
             Destroy(fx, effectLifetime);
         }
 
-        // CHECK: If this is a converted mine tile, reset it to a plain tile instead of destroying!
         TileVisualizer tileViz = GetComponent<TileVisualizer>();
         if (tileViz != null && tileViz.isJewel)
         {
             tileViz.ResetToPlainTile();
-            IsMined = false; // Allow it to be re-mined or stay fresh
+            IsMined = false;
         }
         else
         {
             IsMined = true;
-            Destroy(destroyTarget != null ? destroyTarget : gameObject);
+            TargetObject.SetActive(false); // Switch off so it can be restored
         }
+    }
+
+    // --- ICheckpointable ---
+    public object CaptureState() => IsMined;
+
+    public void RestoreState(object state)
+    {
+        IsMined = (bool)state;
+        TargetObject.SetActive(!IsMined);
     }
 }

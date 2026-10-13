@@ -5,7 +5,7 @@ using UnityEditor;
 
 [ExecuteAlways]
 [RequireComponent(typeof(EdgeCollider2D))]
-public class BendablePlatform : MonoBehaviour
+public class BendablePlatform : MonoBehaviour, ICheckpointable
 {
     [Header("Shape")]
     [Tooltip("Auto-filled from this object's SpriteRenderer the moment the script is added. You can reassign it afterward to swap textures.")]
@@ -52,11 +52,6 @@ public class BendablePlatform : MonoBehaviour
     private float[] elasticOffset;
     private float[] velocity;
 
-    // The original collider only ever tracked the TOP surface (the walkable side). That
-    // left the underside with zero collision geometry, so a headbutt coming from below had
-    // to clip most of the way through the sprite before it could ever register a hit. This
-    // second collider traces the bottom surface at its real height, so headbutts land where
-    // they visually should.
     private EdgeCollider2D edgeCollider;
     private EdgeCollider2D underEdgeCollider;
 
@@ -80,8 +75,6 @@ public class BendablePlatform : MonoBehaviour
     {
         if (underEdgeCollider != null) return;
 
-        // Look for one we already created on a previous enable (e.g. domain reload)
-        // before adding a new one, so we don't accumulate duplicates.
         EdgeCollider2D[] existing = GetComponents<EdgeCollider2D>();
         if (existing.Length > 1)
         {
@@ -97,13 +90,9 @@ public class BendablePlatform : MonoBehaviour
         if (pointCount < 3) pointCount = 3;
 
 #if UNITY_EDITOR
-        // OnValidate can fire before OnEnable has fully set things up (e.g. right after
-        // the script is added in the Inspector), and Unity disallows some operations
-        // (like destroying components) synchronously inside OnValidate. Deferring one
-        // frame avoids both problems while still updating the Scene view immediately.
         EditorApplication.delayCall += () =>
         {
-            if (this == null) return; // object may have been deleted in the meantime
+            if (this == null) return;
             EnsureUnderCollider();
             EnsureMeshComponents();
             RebuildAll();
@@ -113,12 +102,6 @@ public class BendablePlatform : MonoBehaviour
 #endif
     }
 
-    /// <summary>
-    /// If this GameObject already has a SpriteRenderer (the normal case when dragging
-    /// this script onto an existing 2D sprite object), grab its sprite and sorting info,
-    /// then remove it — SpriteRenderer and MeshRenderer cannot coexist on one object, and
-    /// only a mesh can actually deform per-vertex.
-    /// </summary>
     private void ConvertSpriteRendererIfPresent()
     {
         SpriteRenderer existing = GetComponent<SpriteRenderer>();
@@ -157,6 +140,7 @@ public class BendablePlatform : MonoBehaviour
         BuildMeshTopology();
         UpdateColliderAndVisual();
     }
+
     private void ReadSourceVisual()
     {
         Material material;
@@ -212,7 +196,7 @@ public class BendablePlatform : MonoBehaviour
         if (mesh == null) mesh = new Mesh { name = "BendablePlatformMesh" };
         else mesh.Clear();
 
-        int vertCount = pointCount * 2; // bottom row + top row
+        int vertCount = pointCount * 2;
         Vector3[] vertices = new Vector3[vertCount];
         Vector2[] uvs = new Vector2[vertCount];
         int[] triangles = new int[(pointCount - 1) * 6];
@@ -220,8 +204,8 @@ public class BendablePlatform : MonoBehaviour
         for (int i = 0; i < pointCount; i++)
         {
             float u = pointCount > 1 ? Mathf.Lerp(uMin, uMax, i / (float)(pointCount - 1)) : uMin;
-            uvs[i] = new Vector2(u, vMin);                 // bottom row
-            uvs[pointCount + i] = new Vector2(u, vMax);    // top row
+            uvs[i] = new Vector2(u, vMin);
+            uvs[pointCount + i] = new Vector2(u, vMax);
         }
 
         int tri = 0;
@@ -241,7 +225,7 @@ public class BendablePlatform : MonoBehaviour
             triangles[tri++] = topB;
         }
 
-        mesh.vertices = vertices; // placeholder, filled in by UpdateColliderAndVisual
+        mesh.vertices = vertices;
         mesh.uv = uvs;
         mesh.triangles = triangles;
 
@@ -280,23 +264,13 @@ public class BendablePlatform : MonoBehaviour
 
         if (!anyMovement)
         {
-            isSettled = true; // shape is now locked — no more recalculation until the next impact
+            isSettled = true;
         }
     }
 
-    /// <summary>
-    /// Call this when the player ground-slams onto the platform (bulgeUpward = false)
-    /// or headbutts it from below (bulgeUpward = true). The two paths are deliberately
-    /// mirrored: same falloff, same smoothing, same clamp logic — just flipped in sign
-    /// and pointed at maxBendDepth vs. maxUpwardBendDepth respectively.
-    ///
-    /// The per-hit depth is fixed at maxDepth / hitsToReachMaxDepth rather than scaled
-    /// from impactForce, so landing "hitsToReachMaxDepth" hits at the same spot always
-    /// reaches the cap — regardless of how hard any individual hit was.
-    /// </summary>
     public void ApplyImpact(Vector2 worldContactPoint, float impactForce, bool bulgeUpward = false)
     {
-        if (localPositions == null) return; // not initialized yet (called in edit mode before OnEnable ran)
+        if (localPositions == null) return;
 
         if (bulgeUpward && !canDeformUpward) return;
         if (!bulgeUpward && !canDeformDownward) return;
@@ -306,8 +280,6 @@ public class BendablePlatform : MonoBehaviour
         float maxDepthForDirection = bulgeUpward ? maxUpwardBendDepth : maxBendDepth;
         float perHitDepth = maxDepthForDirection / hitsToReachMaxDepth;
 
-        // Slam bends positive (down). Headbutt bends negative (up). Everything from here
-        // down uses this single signed value, so the two impact types stay symmetric.
         float bendAmount = bulgeUpward ? -perHitDepth : perHitDepth;
 
         int nearestIndex = 0;
@@ -316,8 +288,6 @@ public class BendablePlatform : MonoBehaviour
         int startIndex = pinEdges ? 1 : 0;
         int endIndexExclusive = pinEdges ? pointCount - 1 : pointCount;
 
-        // Tracks which points this specific impact actually touched, so the smoothing
-        // pass below only re-shapes that local neighborhood — not the whole beam.
         int minAffected = -1;
         int maxAffected = -1;
 
@@ -346,27 +316,17 @@ public class BendablePlatform : MonoBehaviour
             maxAffected = i;
         }
 
-        // Only smooth the region this impact actually reached — a fold shaped somewhere
-        // else on the same platform is left completely alone.
         if (minAffected != -1)
         {
             SmoothPermanentOffset(minAffected, maxAffected);
         }
 
-        // Kick the impact point in the SAME direction it just bent (positive kick for a
-        // slam's downward bend, negative kick for a headbutt's upward bend) so it overshoots
-        // slightly before the spring settles it back.
         velocity[nearestIndex] += bendAmount * 4f;
 
         isSettled = false;
         UpdateColliderAndVisual();
     }
 
-    // Averages each point with its neighbors so the permanent dent has no sharp creases
-    // where the affected radius ends — a smooth curve instead of a V-shape. Only touches
-    // [rangeStart, rangeEnd] (the indices the triggering impact actually affected); points
-    // outside that range are read as fixed boundary values but never modified, so shapes
-    // formed elsewhere on the beam by earlier impacts are never disturbed.
     private void SmoothPermanentOffset(int rangeStart, int rangeEnd)
     {
         rangeStart = Mathf.Clamp(rangeStart, 0, pointCount - 1);
@@ -384,8 +344,6 @@ public class BendablePlatform : MonoBehaviour
 
                 if (i == 0)
                 {
-                    // Edge stays anchored at whatever it already is if pinned; otherwise
-                    // smooth it against its one available neighbor.
                     smoothed[localIndex] = pinEdges
                         ? permanentOffset[0]
                         : (permanentOffset[0] * 2f + permanentOffset[1]) / 3f;
@@ -409,7 +367,6 @@ public class BendablePlatform : MonoBehaviour
         }
     }
 
-    // Flattens the platform back to its original shape — useful for repeatable puzzles.
     public void ResetShape()
     {
         if (permanentOffset == null) return;
@@ -432,7 +389,7 @@ public class BendablePlatform : MonoBehaviour
         float halfThickness = thickness / 2f;
 
         Vector3[] vertices = mesh.vertices;
-        if (vertices.Length != pointCount * 2) return; // topology not built yet for current pointCount
+        if (vertices.Length != pointCount * 2) return;
 
         Vector2[] topPoints = new Vector2[pointCount];
         Vector2[] bottomPoints = new Vector2[pointCount];
@@ -475,7 +432,6 @@ public class BendablePlatform : MonoBehaviour
     {
         ApplyImpact(transform.position, 150f, bulgeUpward);
 
-
         if (elasticOffset != null)
         {
             for (int i = 0; i < pointCount; i++)
@@ -486,5 +442,29 @@ public class BendablePlatform : MonoBehaviour
         }
         isSettled = true;
         UpdateColliderAndVisual();
+    }
+
+    // --- ICheckpointable Implementation ---
+
+    public object CaptureState()
+    {
+        return permanentOffset != null ? (float[])permanentOffset.Clone() : new float[0];
+    }
+
+    public void RestoreState(object state)
+    {
+        if (state is float[] saved)
+        {
+            if (saved.Length != pointCount) return;
+
+            for (int i = 0; i < pointCount; i++)
+            {
+                permanentOffset[i] = saved[i];
+                elasticOffset[i] = 0f;
+                velocity[i] = 0f;
+            }
+            isSettled = true;
+            UpdateColliderAndVisual();
+        }
     }
 }
