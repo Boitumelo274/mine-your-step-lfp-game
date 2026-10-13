@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6870674917929244166}
   - component: {fileID: 2496513045377488192}
   - component: {fileID: 3261567129300529742}
-  - component: {fileID: 39266248509449653}
+  - component: {fileID: 1294106180988860766}
   m_Layer: 0
   m_Name: Open_Door_0
   m_TagString: Untagged
@@ -139,7 +139,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 8.59, y: 8.59}
   m_EdgeRadius: 0
---- !u!114 &39266248509449653
+--- !u!114 &1294106180988860766
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -148,7 +148,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7311517256735561696}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3305793bfb5adb244a9428dbabb1c926, type: 3}
+  m_Script: {fileID: 11500000, guid: b9fbe5790e994a44897d14a32245d872, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelExitDoor
   jewelName: Jewel
