@@ -20,12 +20,9 @@ public class MainMenuManager : MonoBehaviour
         SceneManager.LoadScene("MainScene");
     }
 
-    public void OpenControls()
+    public void OpenTutorial()
     {
-        if (controlsPanel != null)
-        {
-            controlsPanel.SetActive(true);
-        }
+        SceneManager.LoadScene("Tutorial");
     }
 
     public void CloseControls()
