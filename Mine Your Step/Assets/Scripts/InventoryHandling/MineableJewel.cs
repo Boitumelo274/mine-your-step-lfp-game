@@ -27,12 +27,10 @@ public class MineableJewel : MonoBehaviour
     public void Collect(PlayerInventory inventory)
     {
         if (IsMined) return;
-        IsMined = true;
 
         if (inventory != null) inventory.Add(jewelName, amount);
 
-        // Fire the block's Hit event BEFORE destroying, so the Spawner still exists
-        // and spawns the particles at the block's position.
+        // Fire the block's Hit event
         if (triggerHitEvent)
         {
             HittableBlocks block = GetComponent<HittableBlocks>();
@@ -46,6 +44,17 @@ public class MineableJewel : MonoBehaviour
             Destroy(fx, effectLifetime);
         }
 
-        Destroy(destroyTarget != null ? destroyTarget : gameObject);
+        // CHECK: If this is a converted mine tile, reset it to a plain tile instead of destroying!
+        TileVisualizer tileViz = GetComponent<TileVisualizer>();
+        if (tileViz != null && tileViz.isJewel)
+        {
+            tileViz.ResetToPlainTile();
+            IsMined = false; // Allow it to be re-mined or stay fresh
+        }
+        else
+        {
+            IsMined = true;
+            Destroy(destroyTarget != null ? destroyTarget : gameObject);
+        }
     }
 }

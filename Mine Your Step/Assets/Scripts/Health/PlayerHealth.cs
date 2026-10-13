@@ -57,6 +57,13 @@ public class PlayerHealth : MonoBehaviour
                 if (playerRespawn != null)
                 {
                     playerRespawn.Respawn();
+
+                    // Refill disarmer ammo on respawn/board reset
+                    DisarmerThrower thrower = GetComponent<DisarmerThrower>();
+                    if (thrower != null)
+                    {
+                        thrower.ResetAmmo();
+                    }
                 }
                 else
                 {
