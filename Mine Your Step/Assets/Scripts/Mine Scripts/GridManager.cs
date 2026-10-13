@@ -47,18 +47,26 @@ public class GridManager : MonoBehaviour
         if (hazardIndicatorsParent == null) return;
 
         TileVisualizer[] tiles = hazardIndicatorsParent.GetComponentsInChildren<TileVisualizer>();
-        allTiles.AddRange(tiles);
+        foreach (var tile in tiles)
+        {
+            if (tile != null) allTiles.Add(tile);
+        }
 
         Debug.Log($"[GridManager] Cached {allTiles.Count} total platform tiles across scene.");
     }
 
     public void GenerateMines()
     {
+        // Clean up any destroyed tiles before generating
+        allTiles.RemoveAll(tile => tile == null);
+
         if (allTiles.Count == 0) return;
 
         // Reset existing tiles completely
         foreach (var tile in allTiles)
         {
+            if (tile == null) continue;
+
             tile.isMine = false;
             tile.isDetonated = false;
             tile.isFlagged = false;
@@ -78,9 +86,16 @@ public class GridManager : MonoBehaviour
         while (placed < minesToPlace && availableTiles.Count > 0)
         {
             int index = Random.Range(0, availableTiles.Count);
-            availableTiles[index].isMine = true;
-            availableTiles.RemoveAt(index);
-            placed++;
+            if (availableTiles[index] != null)
+            {
+                availableTiles[index].isMine = true;
+                availableTiles.RemoveAt(index);
+                placed++;
+            }
+            else
+            {
+                availableTiles.RemoveAt(index);
+            }
         }
 
         Debug.Log($"[GridManager] Generated {placed} hidden mines.");
@@ -88,10 +103,15 @@ public class GridManager : MonoBehaviour
 
     public void HandlePlatformImpact(Vector2 impactPosition)
     {
+        // Clean up any destroyed/mined tiles before scanning
+        allTiles.RemoveAll(tile => tile == null);
+
         int scannedCount = 0;
 
         foreach (var tile in allTiles)
         {
+            if (tile == null) continue;
+
             if (Mathf.Abs(tile.transform.position.x - impactPosition.x) > scanRangeX)
                 continue;
 
@@ -127,12 +147,14 @@ public class GridManager : MonoBehaviour
 
     private int CountAdjacentMines(TileVisualizer currentTile)
     {
+        if (currentTile == null) return 0;
+
         int count = 0;
         Vector2 currentPos = currentTile.transform.position;
 
         foreach (var otherTile in allTiles)
         {
-            if (otherTile == currentTile) continue;
+            if (otherTile == null || otherTile == currentTile) continue;
 
             Vector2 otherPos = otherTile.transform.position;
 

@@ -6,42 +6,59 @@ public class TileVisualizer : MonoBehaviour
     public bool isMine = false;
     public bool isDetonated = false;
     public bool isFlagged = false;
-    public bool isDisarmed = false; // NEW
+    public bool isDisarmed = false;
+    public bool isJewel = false;
 
-    [Header("Disarm Colors")]
-    public Color disarmedColor = Color.green; // Color when disarmed
-
-    [Header("Warning Sprites")]
+    [Header("Sprites & Visuals")]
+    public Color disarmedColor = Color.green;
     public Sprite defaultRockSprite;
     public Sprite hairlineCrackSprite; // 1 adjacent mine
     public Sprite spiderCrackSprite;   // 2+ adjacent mines
     public Sprite lavaFissureSprite;   // Detonated actual mine
     public Sprite flagSprite;          // Flagged tile sprite
+    public Sprite jewelSprite;         // Sprite shown when converted to a jewel
 
     [Header("Components")]
     public SpriteRenderer spriteRenderer;
+    [SerializeField] private MineableJewel mineableJewelComponent;
 
     private void Awake()
     {
         if (spriteRenderer == null)
-        {
             spriteRenderer = GetComponent<SpriteRenderer>();
-        }
+
+        if (mineableJewelComponent == null)
+            mineableJewelComponent = GetComponent<MineableJewel>();
+
+        // Ensure mining component starts disabled on hidden mines
+        if (mineableJewelComponent != null)
+            mineableJewelComponent.enabled = false;
     }
 
-    // Disarms the mine and tints it green
+    // Disarms the mine and converts it into a collectible Mineable Jewel node
     public void DisarmTile()
     {
         if (!isMine || isDetonated || isDisarmed) return;
 
         isDisarmed = true;
+        isJewel = true; // Transforms into a jewel block!
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = disarmedColor;
+            spriteRenderer.color = Color.white; // Reset tint
+            if (jewelSprite != null)
+            {
+                spriteRenderer.sprite = jewelSprite; // Switch to jewel sprite
+            }
         }
 
-        Debug.Log($"[Disarmer] Mine at {transform.position} disarmed successfully!");
+        // ENABLE the MineableJewel component so MinerMining can detect and mine it!
+        if (mineableJewelComponent != null)
+        {
+            mineableJewelComponent.enabled = true;
+        }
+
+        Debug.Log($"[Disarmer] Mine at {transform.position} disarmed and converted into a Mineable Jewel!");
     }
 
     public bool Detonate()
@@ -58,7 +75,7 @@ public class TileVisualizer : MonoBehaviour
 
     public bool ToggleFlag()
     {
-        if (isDetonated || isDisarmed) return false;
+        if (isDetonated || isDisarmed || isJewel) return false;
 
         isFlagged = !isFlagged;
 
@@ -80,6 +97,13 @@ public class TileVisualizer : MonoBehaviour
     public void ResetVisual()
     {
         isDisarmed = false;
+        isJewel = false;
+
+        // Disable MineableJewel component back when resetting/respawning
+        if (mineableJewelComponent != null)
+        {
+            mineableJewelComponent.enabled = false;
+        }
 
         if (spriteRenderer != null)
         {
@@ -96,7 +120,7 @@ public class TileVisualizer : MonoBehaviour
     {
         if (isMine)
         {
-            Gizmos.color = isDisarmed ? Color.green : Color.red;
+            Gizmos.color = isJewel ? Color.cyan : (isDisarmed ? Color.green : Color.red);
             Gizmos.DrawWireCube(transform.position, Vector3.one * 1.5f);
         }
     }
