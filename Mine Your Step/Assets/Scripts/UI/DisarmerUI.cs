@@ -39,7 +39,7 @@ public class DisarmerUI : MonoBehaviour
             if (current != lastAmmo)
             {
                 lastAmmo = current;
-                disarmerText.text = $"{current} / {max}";
+                disarmerText.text = $"{current}";
                 // Change to $"{current}" if you just want to show the number of shots left
             }
         }
