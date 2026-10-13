@@ -105,6 +105,12 @@ public class MinerMining : MonoBehaviour
             MineableJewel jewel = hits[i].GetComponentInParent<MineableJewel>();
             if (jewel == null || jewel.IsMined) continue;
 
+           //Mine only tiles that are disarmed and show the jewel
+            if (!jewel.enabled) continue;
+
+            TileVisualizer tile = jewel.GetComponent<TileVisualizer>();
+            if (tile != null && !tile.isJewel) continue;
+
             float d = Vector2.Distance(center, hits[i].ClosestPoint(center));
             if (d < bestDist)
             {
