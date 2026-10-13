@@ -30,7 +30,6 @@ public class TileVisualizer : MonoBehaviour
         if (mineableJewelComponent == null)
             mineableJewelComponent = GetComponent<MineableJewel>();
 
-        // Ensure mining component starts disabled on hidden mines
         if (mineableJewelComponent != null)
             mineableJewelComponent.enabled = false;
     }
@@ -41,24 +40,45 @@ public class TileVisualizer : MonoBehaviour
         if (!isMine || isDetonated || isDisarmed) return;
 
         isDisarmed = true;
-        isJewel = true; // Transforms into a jewel block!
+        isJewel = true;
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = Color.white; // Reset tint
+            spriteRenderer.color = Color.white;
             if (jewelSprite != null)
             {
-                spriteRenderer.sprite = jewelSprite; // Switch to jewel sprite
+                spriteRenderer.sprite = jewelSprite;
             }
         }
 
-        // ENABLE the MineableJewel component so MinerMining can detect and mine it!
         if (mineableJewelComponent != null)
         {
             mineableJewelComponent.enabled = true;
         }
 
         Debug.Log($"[Disarmer] Mine at {transform.position} disarmed and converted into a Mineable Jewel!");
+    }
+
+    // NEW: Reverts the mined jewel tile back to a plain rock platform
+    public void ResetToPlainTile()
+    {
+        isMine = false;
+        isDisarmed = false;
+        isJewel = false;
+        isDetonated = false;
+
+        if (spriteRenderer != null && defaultRockSprite != null)
+        {
+            spriteRenderer.sprite = defaultRockSprite;
+            spriteRenderer.color = Color.white;
+        }
+
+        if (mineableJewelComponent != null)
+        {
+            mineableJewelComponent.enabled = false;
+        }
+
+        Debug.Log($"[TileVisualizer] Mined tile at {transform.position} reverted back to a plain rock.");
     }
 
     public bool Detonate()
@@ -99,7 +119,6 @@ public class TileVisualizer : MonoBehaviour
         isDisarmed = false;
         isJewel = false;
 
-        // Disable MineableJewel component back when resetting/respawning
         if (mineableJewelComponent != null)
         {
             mineableJewelComponent.enabled = false;
@@ -107,7 +126,7 @@ public class TileVisualizer : MonoBehaviour
 
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = Color.white; // Reset tint color back to normal
+            spriteRenderer.color = Color.white;
 
             if (!isDetonated && defaultRockSprite != null)
             {
