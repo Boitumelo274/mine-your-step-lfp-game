@@ -19,6 +19,12 @@ public class MinerController : MonoBehaviour
     [Tooltip("How fast the character is forced downward while slamming.")]
     public float downForce = 20f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip jumpSound;
+    [SerializeField] private AudioClip headbuttSound;
+    [SerializeField, Range(0f, 1f)] private float sfxVolume = 1f;
+    private AudioSource audioSource;
+
     [Header("Head Butt")]
     [Tooltip("How high (in world units) the headbutt rises before gravity naturally brings it back down.")]
     public float maxHeadButtHeight = 3f;
@@ -74,6 +80,17 @@ public class MinerController : MonoBehaviour
         animator = GetComponent<Animator>();
 
         CalculateJumpPhysics();
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f; // 2D sound, same volume wherever the camera is
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (clip != null && audioSource != null)
+            audioSource.PlayOneShot(clip, sfxVolume);
     }
 
     private void CalculateJumpPhysics()
@@ -220,12 +237,14 @@ public class MinerController : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        // Headbutt is now its own action (Shift+Space), so this only ever does a normal jump.
+        // Headbutt is now its own action , so this only ever does a normal jump.
         if (isGrounded)
         {
             CalculateJumpPhysics();
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpVelocity);
             isGrounded = false;
+
+            PlaySound(jumpSound);
         }
     }
 
@@ -237,6 +256,8 @@ public class MinerController : MonoBehaviour
         hasHeadButtedThisAirtime = true;
         isHeadButting = true;
         isForceDown = false;
+
+        PlaySound(headbuttSound);
     }
 
     private void OnSlam(InputAction.CallbackContext context)

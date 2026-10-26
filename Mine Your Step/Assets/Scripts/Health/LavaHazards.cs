@@ -13,9 +13,23 @@ public class LavaHazard : MonoBehaviour
     [SerializeField] private GameObject explosionPrefab;
     [SerializeField] private float explosionLifetime = 2f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip lavaHitSound;
+    [SerializeField, Range(0f, 1f)] private float lavaHitVolume = 1f;
+    private AudioSource audioSource;
+
     private void Reset()
     {
         GetComponent<Collider2D>().isTrigger = true;
+    }
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f; // 2D sound, same volume wherever the camera is
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -26,6 +40,9 @@ public class LavaHazard : MonoBehaviour
         // TakeDamage returns false during invincibility or when already dead,
         // so we only explode/respawn on hits that actually count.
         if (!health.TakeDamage(damage)) return;
+
+        // Lava sound plays here, only on hits that count
+        if (lavaHitSound != null) audioSource.PlayOneShot(lavaHitSound, lavaHitVolume);
 
         if (explosionPrefab != null)
         {

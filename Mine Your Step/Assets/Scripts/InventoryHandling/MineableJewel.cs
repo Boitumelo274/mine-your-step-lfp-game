@@ -14,6 +14,10 @@ public class MineableJewel : MonoBehaviour, ICheckpointable
     [SerializeField] private GameObject mineEffectPrefab;
     [SerializeField, Min(0.1f)] private float effectLifetime = 2f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip breakSound;
+    [SerializeField, Range(0f, 1f)] private float breakVolume = 1f;
+
     public string JewelName => jewelName;
     public int MineLoops => mineLoops;
     public bool IsMined { get; private set; }
@@ -37,6 +41,17 @@ public class MineableJewel : MonoBehaviour, ICheckpointable
         {
             GameObject fx = Instantiate(mineEffectPrefab, transform.position, Quaternion.identity);
             Destroy(fx, effectLifetime);
+        }
+
+        // Rock breaking sound  <- this whole block is what you replace
+        AudioClip clipToPlay = breakSound;
+        if (clipToPlay == null && GridManager.Instance != null)
+            clipToPlay = GridManager.Instance.jewelBreakSound;
+
+        if (clipToPlay != null)
+        {
+            Vector3 soundPos = Camera.main != null ? Camera.main.transform.position : transform.position;
+            AudioSource.PlayClipAtPoint(clipToPlay, soundPos, breakVolume);
         }
 
         TileVisualizer tileViz = GetComponent<TileVisualizer>();

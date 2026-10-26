@@ -1,24 +1,3 @@
-//using Unity.Cinemachine;
-//using Unity.VisualScripting;
-//using UnityEngine;
-//using UnityEngine.Events;
-//using UnityEngine.Rendering;
-
-//public class HittableBlocks : MonoBehaviour
-//{
-//    [SerializeField] private UnityEvent hit;
-
-
-//    private void OnCollisionEnter2D(Collision2D collision)
-//    {
-//        var player = collision.collider.GetComponent<MinerController>();
-
-//        if( (bool) player && collision.contacts[0].normal.y > 0)
-//        {
-//            hit?.Invoke();
-//        }
-//    }
-//}
 
 using UnityEngine;
 using UnityEngine.Events;
