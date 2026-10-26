@@ -92,6 +92,18 @@ public class PlayerHealth : MonoBehaviour
         return true;
     }
 
+    public bool AddHealth(int amount)
+    {
+        if (isDead) return false;                 // don't heal the dead
+        if (currentHealth >= maxHealth) return false; // already full, don't consume pickup
+
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
+        Debug.Log($"Healed {amount}! Current health: {currentHealth}/{maxHealth}");
+        return true;
+    }
+
     private void Die()
     {
         isDead = true;
