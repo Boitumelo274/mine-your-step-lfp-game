@@ -24,6 +24,11 @@ public class MinerMining : MonoBehaviour
     [Tooltip("Drag your control scripts here (e.g. MinerController). They're switched off while mining so the miner stays put.")]
     [SerializeField] private Behaviour[] disableWhileMining;
 
+    [Tooltip("Name of the mine-DOWN state in your Animator Controller. Used when the jewel is under the miner's feet.")]
+    [SerializeField] private string mineDownStateName = "minedown";
+    [Tooltip("How close to the jewel's top surface the miner's feet must be to count as standing on it.")]
+    [SerializeField, Min(0f)] private float downFeetTolerance = 0.5f;
+
     [Tooltip("If ticked, the prompt is shown only until the first time the miner mines something, then never again.")]
     [SerializeField] private bool showPromptOnlyOnce = true;
 
@@ -121,6 +126,25 @@ public class MinerMining : MonoBehaviour
         return best;
     }
 
+    // True when the jewel is directly beneath the miner (standing on it),
+    // as opposed to being beside them.
+    private bool IsJewelBelow(MineableJewel jewel)
+    {
+        if (jewel == null || bodyCollider == null) return false;
+
+        Collider2D jc = jewel.GetComponentInChildren<Collider2D>();
+        if (jc == null) jc = jewel.GetComponentInParent<Collider2D>();
+        if (jc == null) return false;
+
+        Bounds jb = jc.bounds;
+        Bounds mb = bodyCollider.bounds;
+
+        bool xOverlap = mb.center.x >= jb.min.x && mb.center.x <= jb.max.x;
+        bool feetOnTop = mb.min.y >= jb.max.y - downFeetTolerance;
+
+        return xOverlap && feetOnTop;
+    }
+
     // Stops mining from starting in mid-air.
     private bool IsStandingStill()
     {
@@ -139,9 +163,100 @@ public class MinerMining : MonoBehaviour
         }
     }
 
+    //private IEnumerator MineRoutine(MineableJewel jewel)
+    //{
+    //    isMining = true;
+    //    if (showPromptOnlyOnce) promptDismissed = true;
+    //    if (promptObject != null) promptObject.SetActive(false);
+
+    //    // The miner can't move or act for the whole mining sequence.
+    //    SetControl(false);
+    //    rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+
+    //    if (animator != null)
+    //    {
+    //        animator.SetFloat("Speed", 0f);
+    //        if (HasParameter(mineBoolName)) animator.SetBool(mineBoolName, true);
+    //        else Debug.LogError($"[MinerMining] The Animator has no Bool parameter called '{mineBoolName}'.", this);
+
+    //        // Jump straight into the mining state by name, so it plays even if a transition is misconfigured.
+    //        animator.CrossFade(mineStateName, 0.05f, 0);
+    //    }
+
+    //    // Wait until the mining clip has played the jewel's number of loops.
+    //    int loops = jewel.MineLoops;
+    //    bool completed = true;
+    //    bool entered = false;
+    //    float timer = 0f;
+
+    //    while (timer < maxMineSeconds)
+    //    {
+    //        if (IsInterrupted(jewel)) { completed = false; break; }
+
+    //        if (animator == null)
+    //        {
+    //            if (timer >= 3f) break;
+    //        }
+    //        else
+    //        {
+    //            AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
+
+    //            if (info.IsName(mineStateName))
+    //            {
+    //                entered = true;
+    //                if (info.normalizedTime >= loops) break; // enough loops
+    //            }
+    //            else if (entered)
+    //            {
+    //                break; // something else pulled the Animator out of the mining state
+    //            }
+    //            else if (timer > 1.5f)
+    //            {
+    //                string controllerName = animator.runtimeAnimatorController != null ? animator.runtimeAnimatorController.name : "NONE";
+    //                Debug.LogWarning($"[MinerMining] The Animator never entered a state called '{mineStateName}'. Controller on the miner: '{controllerName}'. Animator enabled: {animator.isActiveAndEnabled}.", this);
+    //                break;
+    //            }
+    //        }
+
+    //        timer += Time.deltaTime;
+    //        yield return null;
+    //    }
+
+    //    // Jewel goes into the inventory.
+    //    if (completed && jewel != null) jewel.Collect(inventory);
+
+    //    // Tell the Animator to go back to idle, and wait until it has actually left the mining pose.
+    //    if (animator != null)
+    //    {
+    //        if (HasParameter(mineBoolName)) animator.SetBool(mineBoolName, false);
+
+    //        if (completed)
+    //        {
+    //            animator.CrossFade(idleStateName, 0.05f, 0);
+
+    //            float wait = 0f;
+    //            while (wait < 1f && animator.GetCurrentAnimatorStateInfo(0).IsName(mineStateName))
+    //            {
+    //                wait += Time.deltaTime;
+    //                yield return null;
+    //            }
+    //        }
+    //    }
+
+    //    // Give control back, unless death / respawn has taken over.
+    //    if (!IsInterrupted(null, ignoreJewel: true)) SetControl(true);
+
+    //    isMining = false;
+    //}
+
     private IEnumerator MineRoutine(MineableJewel jewel)
     {
         isMining = true;
+
+        // Pick which animation to play
+        bool mineDown = IsJewelBelow(jewel);
+        string activeState = mineDown ? mineDownStateName : mineStateName;
+
         if (showPromptOnlyOnce) promptDismissed = true;
         if (promptObject != null) promptObject.SetActive(false);
 
@@ -155,8 +270,7 @@ public class MinerMining : MonoBehaviour
             if (HasParameter(mineBoolName)) animator.SetBool(mineBoolName, true);
             else Debug.LogError($"[MinerMining] The Animator has no Bool parameter called '{mineBoolName}'.", this);
 
-            // Jump straight into the mining state by name, so it plays even if a transition is misconfigured.
-            animator.CrossFade(mineStateName, 0.05f, 0);
+            animator.CrossFade(activeState, 0.05f, 0);
         }
 
         // Wait until the mining clip has played the jewel's number of loops.
@@ -177,7 +291,7 @@ public class MinerMining : MonoBehaviour
             {
                 AnimatorStateInfo info = animator.GetCurrentAnimatorStateInfo(0);
 
-                if (info.IsName(mineStateName))
+                if (info.IsName(activeState))
                 {
                     entered = true;
                     if (info.normalizedTime >= loops) break; // enough loops
@@ -189,7 +303,7 @@ public class MinerMining : MonoBehaviour
                 else if (timer > 1.5f)
                 {
                     string controllerName = animator.runtimeAnimatorController != null ? animator.runtimeAnimatorController.name : "NONE";
-                    Debug.LogWarning($"[MinerMining] The Animator never entered a state called '{mineStateName}'. Controller on the miner: '{controllerName}'. Animator enabled: {animator.isActiveAndEnabled}.", this);
+                    Debug.LogWarning($"[MinerMining] The Animator never entered a state called '{activeState}'. Controller on the miner: '{controllerName}'. Animator enabled: {animator.isActiveAndEnabled}.", this);
                     break;
                 }
             }
@@ -201,7 +315,7 @@ public class MinerMining : MonoBehaviour
         // Jewel goes into the inventory.
         if (completed && jewel != null) jewel.Collect(inventory);
 
-        // Tell the Animator to go back to idle, and wait until it has actually left the mining pose.
+        // Tell the Animator to go back to idle, and wait until it has left the mining pose.
         if (animator != null)
         {
             if (HasParameter(mineBoolName)) animator.SetBool(mineBoolName, false);
@@ -211,7 +325,7 @@ public class MinerMining : MonoBehaviour
                 animator.CrossFade(idleStateName, 0.05f, 0);
 
                 float wait = 0f;
-                while (wait < 1f && animator.GetCurrentAnimatorStateInfo(0).IsName(mineStateName))
+                while (wait < 1f && animator.GetCurrentAnimatorStateInfo(0).IsName(activeState))
                 {
                     wait += Time.deltaTime;
                     yield return null;
