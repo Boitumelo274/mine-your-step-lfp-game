@@ -13,6 +13,11 @@ public class Checkpoint : MonoBehaviour
     [SerializeField] private GridManager gridManager;
     [SerializeField] private ScreenShake screenShake;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip activateSound;
+    [SerializeField, Range(0f, 1f)] private float activateVolume = 1f;
+    private AudioSource audioSource;
+
     [Header("Visual & Event Feedback")]
     [SerializeField] private SpriteRenderer spriteToTint;
     [SerializeField] private Color inactiveColor = Color.gray;
@@ -40,6 +45,13 @@ public class Checkpoint : MonoBehaviour
         {
             screenShake = FindFirstObjectByType<ScreenShake>();
         }
+
+        audioSource = GetComponent<AudioSource>();
+if (audioSource == null)
+    audioSource = gameObject.AddComponent<AudioSource>();
+
+audioSource.playOnAwake = false;
+audioSource.spatialBlend = 0f; // 2D sound, so it's equally loud wherever the camera is
     }
 
     private void Start()
@@ -62,6 +74,7 @@ public class Checkpoint : MonoBehaviour
             onFirstActivated?.Invoke();
 
             if (screenShake != null) screenShake.Shake(1f);
+            if (activateSound != null) audioSource.PlayOneShot(activateSound, activateVolume);
         }
 
         ScanAreaForHazards();

@@ -9,6 +9,9 @@ public class GridManager : MonoBehaviour
     public Transform hazardIndicatorsParent;
     public int targetMines = 15;
 
+    [Header("Audio")]
+    public AudioClip jewelBreakSound;
+
     [Header("Scanner Area Settings")]
     public float scanRangeX = 600f;
 

@@ -11,6 +11,11 @@ public class PlayerHealth : MonoBehaviour
     [Header("Respawn Reference")]
     [SerializeField] private PlayerRespawn playerRespawn;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip mineLandSound;
+    [SerializeField, Range(0f, 1f)] private float mineLandVolume = 1f;
+    private AudioSource audioSource;
+
     // PascalCase Properties expected by HeartsUI & LavaHazards
     public int MaxHealth => maxHealth;
     public int CurrentHealth => currentHealth;
@@ -24,6 +29,12 @@ public class PlayerHealth : MonoBehaviour
     {
         if (playerRespawn == null)
             playerRespawn = GetComponent<PlayerRespawn>();
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0f; // 2D sound, same volume wherever the camera is
     }
 
     private void Start()
@@ -47,6 +58,8 @@ public class PlayerHealth : MonoBehaviour
         {
             Debug.Log($"[BOOM] Player stepped on active hidden mine at {tile.transform.position}!");
             tile.Detonate();
+
+            if (mineLandSound != null) audioSource.PlayOneShot(mineLandSound, mineLandVolume);  
 
             // Deal ONLY 1 point of damage
             TakeDamage(1);
@@ -89,6 +102,18 @@ public class PlayerHealth : MonoBehaviour
             Die();
         }
 
+        return true;
+    }
+
+    public bool AddHealth(int amount)
+    {
+        if (isDead) return false;                 // don't heal the dead
+        if (currentHealth >= maxHealth) return false; // already full, don't consume pickup
+
+        currentHealth = Mathf.Min(currentHealth + amount, maxHealth);
+        OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
+        Debug.Log($"Healed {amount}! Current health: {currentHealth}/{maxHealth}");
         return true;
     }
 
