@@ -109,7 +109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BeepingLight
   lightSprite: {fileID: 4140627607997961506}
-  timeOn: 0.15
+  timeOn: 0.05
   timeOff: 0.25
 --- !u!58 &5108167951154524278
 CircleCollider2D:
