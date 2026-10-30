@@ -1424,7 +1424,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: d235d66b22d680a42b7ea14d69398c80, type: 3}
+  m_Resource: {fileID: 8300000, guid: 7fc3a8435c680b842b5532e11676b8af, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1522,7 +1522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e67682161bc76446b558074d991325a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DelayAudio
-  delayInSeconds: 2.5
+  delayInSeconds: 1.2
 --- !u!1 &1621523550
 GameObject:
   m_ObjectHideFlags: 0
