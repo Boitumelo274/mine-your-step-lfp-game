@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Ground
   - Hazards
+  - Lava
   layers:
   - Default
   - TransparentFX

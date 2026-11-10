@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8506610653514813135}
   - component: {fileID: 1014546344020264738}
   - component: {fileID: 5873446089466723152}
-  - component: {fileID: 9124347248938894011}
   m_Layer: 0
   m_Name: Closed_Door_0
   m_TagString: Untagged
@@ -139,27 +138,3 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 8.59, y: 8.59}
   m_EdgeRadius: 0
---- !u!114 &9124347248938894011
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7679799273777126634}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9fbe5790e994a44897d14a32245d872, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LevelExitDoor
-  destination: {fileID: 0}
-  doorCloseDelay: 0.5
-  waitBeforeMoving: 0.5
-  travelDuration: 5
-  waitBeforeOpening: 0.4
-  centerPlayerInside: 1
-  doorSpriteRenderer: {fileID: 0}
-  closedDoorSprite: {fileID: 0}
-  openDoorSprite: {fileID: 0}
-  onArrived:
-    m_PersistentCalls:
-      m_Calls: []
