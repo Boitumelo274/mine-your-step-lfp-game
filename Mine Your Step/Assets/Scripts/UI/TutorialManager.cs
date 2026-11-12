@@ -10,7 +10,7 @@ public class TutorialManager : MonoBehaviour
     public GameObject winConditionPanel;
 
     [Header("Scene Transition")]
-    public string nextSceneName = "MainScene";
+    public string nextSceneName = "Intro Scene";
 
     private void Start()
     {
@@ -44,7 +44,7 @@ public class TutorialManager : MonoBehaviour
 
     public void PlayGame()
     {
-        SceneManager.LoadScene(nextSceneName);
+        SceneManager.LoadScene("Intro Scene");
     }
 
     private void ShowPanel(GameObject panelToActivate)
