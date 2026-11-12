@@ -148,7 +148,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 24e7e9f421a773645804fafacb2dc7c1, type: 3}
+  m_Resource: {fileID: 8300000, guid: 4b370336f4348f64f922528edaebb6db, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -265,7 +265,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b901f9cd632d3f44f8afd79ace9bd99d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioBooster
-  boostMultiplier: 2
 --- !u!1 &94988734
 GameObject:
   m_ObjectHideFlags: 0
