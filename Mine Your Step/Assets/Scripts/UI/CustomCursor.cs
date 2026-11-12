@@ -2,11 +2,19 @@ using UnityEngine;
 
 public class CustomCursor : MonoBehaviour
 {
-    public Texture2D targetPointer;
-    public Vector2 hotspot = new Vector2(16, 16); // Sets click point to the center of a 32x32 image
+    [Header("Cursor Settings")]
+    public Texture2D targetCursor;
+    public Vector2 hotspot = new Vector2(16f, 16f);
 
-    private void Start()
+    private void OnEnable()
     {
-        Cursor.SetCursor(targetPointer, hotspot, CursorMode.Auto);
+        // Apply the custom target cursor when entering MainScene
+        Cursor.SetCursor(targetCursor, hotspot, CursorMode.Auto);
+    }
+
+    private void OnDisable()
+    {
+        // Reset back to the normal OS arrow when leaving MainScene
+        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 }
