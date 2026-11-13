@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 71208889}
   - component: {fileID: 71208888}
+  - component: {fileID: 71208890}
   m_Layer: 5
   m_Name: Audio Source
   m_TagString: Untagged
@@ -147,7 +148,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 24e7e9f421a773645804fafacb2dc7c1, type: 3}
+  m_Resource: {fileID: 8300000, guid: 4b370336f4348f64f922528edaebb6db, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -252,6 +253,18 @@ RectTransform:
   m_AnchoredPosition: {x: 960, y: 540}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &71208890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 71208887}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b901f9cd632d3f44f8afd79ace9bd99d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioBooster
 --- !u!1 &94988734
 GameObject:
   m_ObjectHideFlags: 0
